@@ -97,7 +97,7 @@ int* parseZTCString(char* charList, char separator) {
 			}
 		}
 	}
-	delete(current);
+	delete[] current;
 	
 	return numList;
 }

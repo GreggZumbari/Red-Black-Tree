@@ -9,7 +9,6 @@ This time, however, you are allowed to add, remove, and search for specific numb
 
 void addToTree(GTree*, int) - Put a number into the tree in the place that it should be in.
 int* addFunction() - Get the user to put in their input(s) to add to the tree, and then print out the parsed version.
-int* removeFunction() - Get the user to put in their input(s) that they want removed from the tree, and then print out the parsed version.
 int searchFunction() - Get the user to input the number that they want to search the tree for.
 void search(GTree*, int) - Print out the amount of times that the inputted number appears in the tree with some random UI stuff added in to make the info understandable.
 bool confirmInput() - Simply asks the user for a yes or no response (y/n). Purely for modularity purposes.
@@ -30,7 +29,7 @@ using namespace std;
 
 void addToTree(GTree*, int);
 int* addFunction();
-int* removeFunction();
+//int* removeFunction();
 int searchFunction();
 void search(GTree*, int);
 bool confirmInput();
@@ -42,7 +41,7 @@ int main() {
 	bool quit = false;
 	int* numbersToAdd; //Going to be the current number(s) to add to the tree
 	
-	//Greetingd, and an introduction to what a tree is in case the user doesn't know
+	//Greetings, and an introduction to what a tree is in case the user doesn't know
 	cout << "Welcome to Gregg\'s fabulous Tree program!" << endl <<
 	"This program is a kind of number sorter which sorts the numbers given to it in a tree formation." << endl <<
 	"Each number will always have a lower number branching off to the left, and a higher number branching off to the right." << endl;
@@ -70,13 +69,6 @@ int main() {
 			if (strcmp(cmdin, "add") == 0 || strcmp(cmdin, "a") == 0 || strcmp(cmdin, "A") == 0) {
 				//Call the add function
 				numbersToAdd = addFunction();
-				//Confirm the input
-				haveInput = confirmInput();
-			}
-			//If the user typed "remove"
-			else if (strcmp(cmdin, "remove") == 0 || strcmp(cmdin, "r") == 0 || strcmp(cmdin, "R") == 0) {
-				//Call the remove function
-				numbersToAdd = removeFunction(); //Pretend that numbersToAdd now says numbersToRemove
 				//Confirm the input
 				haveInput = confirmInput();
 			}
@@ -116,6 +108,7 @@ int main() {
 				addToTree(&tree, numbersToAdd[i]);
 			}
 		}
+		/*
 		//If the user previously told the program to remove (a) number(s)
 		else if (strcmp(cmdin, "remove") == 0 || strcmp(cmdin, "r") == 0 || strcmp(cmdin, "R") == 0) {
 			//Sort each number into the tree one by one
@@ -136,6 +129,7 @@ int main() {
 				cout << endl;
 			}
 		}
+		*/
 	}
 	
 	return 0;
@@ -158,11 +152,11 @@ int searchFunction() {
 	
 	//Parse the char* input into an int* with each number separated
 	int* numberToSearchFor = parseZTCString(inputString, 32);
-	delete(inputString); //We don't need this anymore.
+	delete[] inputString; //We don't need this anymore.
 
 	//At this point, we have our number that we want to search for. We only want the first one. The rest of them must be incinerated.
 	int out = numberToSearchFor[0];
-	delete(numberToSearchFor); //INCINERATE ALL OF THE UNNECESSARY NUMBERS! MWAHAHAHA!!!!
+	delete[] numberToSearchFor; //INCINERATE ALL OF THE UNNECESSARY NUMBERS! MWAHAHAHA!!!!
 	return out;
 }
 
@@ -191,7 +185,7 @@ int* addFunction() {
 	
 	//Parse the char* input into an int* with each number separated
 	int* numbersToAdd = parseZTCString(inputString, 32);
-	delete(inputString);
+	delete[] inputString;
 
 	//At this point, we have our input (inputString).
 	cout << "Input: ";
@@ -248,6 +242,7 @@ void addToTree(GTree* tree, int newToken) {
 	return;
 }
 
+/*
 int* removeFunction() {
 	char* inputString = new char[BIGLEN];
 	
@@ -270,6 +265,7 @@ int* removeFunction() {
 	
 	return numbersToRemove;
 }
+*/
 
 /*
 GTree maxTreeSort(int* input) {

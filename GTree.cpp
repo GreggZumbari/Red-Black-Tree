@@ -1,6 +1,6 @@
 //GTree.cpp
 //Changes cout text color: SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (int)color);
-#include <math.h>
+#include <windows.h>
 
 #include "GTree.h"
 
@@ -12,9 +12,9 @@ GTree::GTree() {
 }
 
 GTree::~GTree() {
-	delete(head);
-	delete(current);
-	delete(treeGuts);
+	delete[] head;
+	delete[] current;
+	delete[] treeGuts;
 }
 
 int GTree::getCurrent() {
@@ -114,7 +114,7 @@ void GTree::printTree() {
 	//Initialize pureTreeGuts
 	pureTreeGuts = new GNode[LEN];
 	for (int i = 0; i < LEN; i++) {
-		pureTreeGuts[i].token = -1;
+		pureTreeGuts[i].token = -1; //Clear the list
 	}
 	
 	cout << "Tree: " << endl << "---" << endl;
@@ -135,49 +135,14 @@ void GTree::printTree() {
 		cout << "EMPTY" << endl;
 	}
 	
+	//Print out the paths of all of the numbers
 	for (int i = 0; i < LEN; i++) {
 		if (pureTreeGuts[i].token == -1) break;
 		cout << pureTreeGuts[i].token << ", " << pureTreeGuts[i].path << endl;
 	}
 	
 	cout << "---" << endl << endl;
-}
-
-//Private function
-void GTree::checkChildren(GNode*& node, int generation) {
-	
-	//Put current token in pureTreeGuts
-	for (int i = 0; i < BIGLEN; i++) {
-		if (pureTreeGuts[i].token == -1) {
-			pureTreeGuts[i] = *node;
-			break;
-		}
-	}
-	
-	//If the left child isn't NULL, check both of their children
-	if (node->left != NULL) {
-		//Print out the next node's token now so that we can specify which direction that it is in relation to the current node
-		cout << "Generation " << ++generation << " (Left): " << node->left->token << endl;
-
-		//Update highest if needed
-		if (generation > highestGeneration) highestGeneration = generation;
-		
-		//Check the children of the left node
-		checkChildren(node->left, generation); //Check the next generation
-		generation--;
-	}
-	//If the right child isn't NULL, check both of their children
-	if (node->right != NULL) {
-		//Print out the next node's token now so that we can specify which direction that it is in relation to the current node
-		cout << "Generation " << ++generation << " (Right): " << node->right->token << endl;
-		
-		//Update highest if needed
-		if (generation > highestGeneration) highestGeneration = generation;
-		
-		//Check the children of the right node
-		checkChildren(node->right, generation);
-		generation--;
-	}
+	delete[] pureTreeGuts;
 }
 
 int GTree::numberCount(int value) {
@@ -185,25 +150,6 @@ int GTree::numberCount(int value) {
 	//Check the entire tree starting from head
 	searchChildren(head, value);
 	return count;
-}	
-
-//Private function
-void GTree::searchChildren(GNode*& node, int number) {
-	//If the current token is the number that we're searching for
-	if (node->token == number) {
-		//Increment the counter
-		count++;
-	}
-	//If the left child isn't NULL, check both of their children
-	if (node->left != NULL) {
-		//Check the children of the left node
-		searchChildren(node->left, number); //Check the next generation
-	}
-	//If the right child isn't NULL, check both of their children
-	if (node->right != NULL) {
-		//Check the children of the right node
-		searchChildren(node->right, number);
-	}
 }
 
 int* GTree::flushTree() {
@@ -224,9 +170,95 @@ int* GTree::flushTree() {
 	resetCurrent();
 	//Return the complete list of tokens that we recorded along the way
 	return treeGuts;
+}	
+
+//Private functions only after this point
+
+void GTree::binaryInsertionSort(GNode* in) {
+	//CURRENTLY BENIGN. THIS DOES NOTHING RIGHT NOW.
+	GNode* out = new GNode[LEN]; //Later, we are going to replace 
+	for (int i = 0; i < LEN; i++) {
+		pureTreeGuts[i].token = -1;
+	}
 }
 
-//Private function
+void GTree::checkChildren(GNode*& node, int generation) {
+	
+	//Put current token in pureTreeGuts
+	for (int i = 0; i < BIGLEN; i++) {
+		if (pureTreeGuts[i].token == -1) {
+			pureTreeGuts[i] = *node;
+			break;
+		}
+	}
+	
+	//If the left child isn't NULL, check both of their children
+	if (node->left != NULL) {
+		//Print out the next node's token now so that we can specify which direction that it is in relation to the current node
+		//If the node is red
+		if (node->left->isRed) {
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); //Set text to red
+			cout << "Generation " << ++generation << " (Left): " << node->left->token << endl;
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to white
+		}
+		//If the node is black
+		else {
+			
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray (I would do black but then you couldnt see the text against the background)
+			cout << "Generation " << ++generation << " (Left): " << node->left->token << endl;
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
+		}
+
+		//Update highest if needed
+		if (generation > highestGeneration) highestGeneration = generation;
+		
+		//Check the children of the left node
+		checkChildren(node->left, generation); //Check the next generation
+		generation--;
+	}
+	//If the right child isn't NULL, check both of their children
+	if (node->right != NULL) {
+		//Print out the next node's token now so that we can specify which direction that it is in relation to the current node
+		//If the node is red
+		if (node->right->isRed) {
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); //Set text to red
+			cout << "Generation " << ++generation << " (Right): " << node->right->token << endl;
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to white
+		}
+		//If the node is black
+		else {
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray (I would do black but then you couldnt see the text against the background)
+			cout << "Generation " << ++generation << " (Right): " << node->right->token << endl;
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
+		}
+		
+		//Update highest if needed
+		if (generation > highestGeneration) highestGeneration = generation;
+		
+		//Check the children of the right node
+		checkChildren(node->right, generation);
+		generation--;
+	}
+}
+
+void GTree::searchChildren(GNode*& node, int number) {
+	//If the current token is the number that we're searching for
+	if (node->token == number) {
+		//Increment the counter
+		count++;
+	}
+	//If the left child isn't NULL, check both of their children
+	if (node->left != NULL) {
+		//Check the children of the left node
+		searchChildren(node->left, number); //Check the next generation
+	}
+	//If the right child isn't NULL, check both of their children
+	if (node->right != NULL) {
+		//Check the children of the right node
+		searchChildren(node->right, number);
+	}
+}
+
 void GTree::flushChildren(GNode*& node) {
 	
 	//If the left child isn't NULL, check both of their children
@@ -248,5 +280,6 @@ void GTree::flushChildren(GNode*& node) {
 		flushChildren(node->right);
 	}
 	
-	delete(node); //Down the toilet this node goes!
+	delete[] node->path;
+	delete[] node; //Down the toilet this node goes!
 }

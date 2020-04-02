@@ -23,17 +23,14 @@ void resetCurrent() - Resets the position of current back to the head.
 void printTree() - Print out the whole tree to console in a visual format. It does so by checking the first node's children, and then by checking each of their children, and then by checking each of their children, etc. until you have reached the very bottom of the list, in which case instead of checking the new non-existant children, it will go on to print out the last node's token, and then it will recursively work its way backwards through each recursive function, printing out each parent as it goes, until it gets back to the very top, at which point it will simply print the head.
 int numberCount(int) - Returns the amount of times that a specific number was found inside the tree.
 int* flushTree() - Completely resets the GTree, returns all of the numbers in an int array that the tree previously had, in branch order from leftmost branch to rightmost branch, from the top of the branch to the bottom of the branch.
-//void removeNumber(int) - Removes the first instance of the specified number found, and updates the tree accordingly.
-
 
 Private functions:
 
+void binaryInsertionSort(GNode*) - Sorts a list of GNodes from left to right based on their path.
 void checkChildren(GNode*&, int) - Call this function for any existing children of the inputted GNode, then print out the inputted GNode's token.
 void searchChildren(GNode*&, int) - Same as checkChildren, except instead of printing out each node, it searches each node and finds out how many of a specified number that there is within the tree.
 void flushChildren(GNode*&) - Same as checkChildren, except instead of just printing out the number, it records the number in int* treeGuts, which is a class variable, then deletes it.
-//void deleteChildren(GNode*&, int) - Same as above, except instead of printing out each node, it searches until it finds the first instance of the specified number, and deletes it.
-//void removeLeft(GNode*&) - Directly removes the left child of the given GNode, and then fixes the GTree so that it is still legal.
-//void removeRight(GNode*&) - Directly removes the right child of the given GNode, and then fixes the GTree so that it is still legal.
+
 
 @author Greggory Hickman, March 2020
 @version 1.0
@@ -54,6 +51,7 @@ class GTree {
 		
 		//Functions
 		int getCurrent();
+		int getParent();
 		int getLeft();
 		int getRight();
 		bool headIsEmpty();
@@ -86,13 +84,18 @@ class GTree {
 				left = NULL;
 				right = NULL;
 				
+				//Clear the path!
 				for (int i = 0; i < LEN; i++) {
 					path[i] = (char)0;
 				}
 			}
 		};
 		
-		//Private functions meant to be used recursively
+		//Private functions
+		void binaryInsertionSort(GNode*);
+		GNode* getParentNode();
+		
+		//Recursive functions which are also private
 		void checkChildren(GNode*&, int);
 		void searchChildren(GNode*&, int);
 		void flushChildren(GNode*&);
@@ -104,4 +107,5 @@ class GTree {
 		int count;
 		GNode* head; //The head of the tree
 		GNode* current; //The current GNode that the user is looking at.
+		GNode* marker;
 };
