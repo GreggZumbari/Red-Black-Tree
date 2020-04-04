@@ -3,12 +3,14 @@
 Hi. I'm Greggory Hickman, and these are some helpful methods to use in your C++ code.
 */
 
+#include <iostream>
 #include <cstring>
 #include <math.h>
 
 #define LEN 100
 #define BIGLEN 3000
 
+using namespace std;
 /*
 Clears all data from a cstring. Can be used to empty out a previously used cstring, or to clear any random RAM still present inside.
 @author Greggory Hickman, February 2020

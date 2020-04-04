@@ -20,6 +20,7 @@ void setRightAddress(char*) - Set the path of the right child. Requires that the
 void moveLeft() - Move current to the left child.
 void moveRight() - Move current to the right child.
 void resetCurrent() - Resets the position of current back to the head.
+void add(int) - Adds the int to the GTree in the correct place.
 void printTree() - Print out the whole tree to console in a visual format. It does so by checking the first node's children, and then by checking each of their children, and then by checking each of their children, etc. until you have reached the very bottom of the list, in which case instead of checking the new non-existant children, it will go on to print out the last node's token, and then it will recursively work its way backwards through each recursive function, printing out each parent as it goes, until it gets back to the very top, at which point it will simply print the head.
 int numberCount(int) - Returns the amount of times that a specific number was found inside the tree.
 int* flushTree() - Completely resets the GTree, returns all of the numbers in an int array that the tree previously had, in branch order from leftmost branch to rightmost branch, from the top of the branch to the bottom of the branch.
@@ -51,7 +52,7 @@ class GTree {
 		
 		//Functions
 		int getCurrent();
-		int getParent();
+		//int getParent();
 		int getLeft();
 		int getRight();
 		bool headIsEmpty();
@@ -65,6 +66,7 @@ class GTree {
 		void moveLeft();
 		void moveRight();
 		void resetCurrent();
+		void add(int);
 		void printTree();
 		int numberCount(int);
 		int* flushTree();
@@ -74,6 +76,7 @@ class GTree {
 			bool isRed;
 			int token;
 			char* path; //This says where the node currently is in the tree right now. A zero means a left turn, a one means a right turn. For example, a path of "101011" means that to the get to the node, you must start at the head, then go right, then left, then right, then left, and then right two more times in order to find where the node is.
+			GNode* parent;
 			GNode* left;
 			GNode* right;
 			
@@ -81,6 +84,7 @@ class GTree {
 				isRed = true;
 				token = -1;
 				path = new char[LEN];
+				parent = NULL;
 				left = NULL;
 				right = NULL;
 				
@@ -93,7 +97,7 @@ class GTree {
 		
 		//Private functions
 		void binaryInsertionSort(GNode*);
-		GNode* getParentNode();
+		//GNode* getParentNode();
 		
 		//Recursive functions which are also private
 		void checkChildren(GNode*&, int);
@@ -107,5 +111,5 @@ class GTree {
 		int count;
 		GNode* head; //The head of the tree
 		GNode* current; //The current GNode that the user is looking at.
-		GNode* marker;
+		GNode* marker; //A marker to temporarily leave at a GNode
 };

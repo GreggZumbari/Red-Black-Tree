@@ -25,9 +25,12 @@ bool confirmInput() - Simply asks the user for a yes or no response (y/n). Purel
 #include "BattlePack.h"
 #include "GTree.h"
 
+#define LEN 100
+#define BIGLEN 3000
+
 using namespace std;
 
-void addToTree(GTree*, int);
+//void addToTree(GTree*, int);
 int* addFunction();
 //int* removeFunction();
 int searchFunction();
@@ -103,9 +106,11 @@ int main() {
 		if (strcmp(cmdin, "add") == 0 || strcmp(cmdin, "a") == 0 || strcmp(cmdin, "A") == 0) {
 			//Sort each number into the tree one by one
 			for (int i = 0; numbersToAdd[i] > 0; i++) {
+				cout << numbersToAdd[i] << endl;
+			}
+			for (int i = 0; numbersToAdd[i] > 0; i++) {
 				//Set the current pointer back to the head
-				tree.resetCurrent();
-				addToTree(&tree, numbersToAdd[i]);
+				tree.add(numbersToAdd[i]);
 			}
 		}
 		/*
@@ -192,54 +197,9 @@ int* addFunction() {
 	for (int i = 0; numbersToAdd[i] != 0; i++) {
 		cout << numbersToAdd[i] << " "; //Print all int-ified inputs
 	}
-		cout << endl;
+	cout << endl;
 	
 	return numbersToAdd;
-}
-
-void addToTree(GTree* tree, int newToken) {
-	char* path = new char[LEN]; //This represents the node's path
-	clearCString(path, LEN);
-	
-	//If the head is undefined
-	if (tree->headIsEmpty()) {
-		//Set the head to be the new token
-		tree->setHead(newToken);
-		return;
-	}
-	while (true) {
-		//If the new token is smaller than current's token
-		if (newToken < tree->getCurrent()) {
-			//If the left child is defined
-			if (!(tree->leftIsEmpty())) {
-				tree->moveLeft(); //Move current one spot to the left
-				strcat(path, "0");
-			}
-			//If the left child is not defined
-			else {
-				strcat(path, "0");
-				tree->setLeft(newToken); //Set the left child to be the new token
-				tree->setLeftAddress(path); //Set the left address to be what it is
-				break;
-			}
-		}
-		//If the new token is larger than or equal to current's token
-		if (newToken >= tree->getCurrent()) {
-			//If the right child is defined
-			if (!(tree->rightIsEmpty())) {
-				tree->moveRight(); //Move current one spot to the right
-				strcat(path, "1");
-			}
-			//If the right child is not defined
-			else {
-				strcat(path, "1");
-				tree->setRight(newToken); //Set the right child to be the new token
-				tree->setRightAddress(path); //Set the right address to be what it is
-				break;
-			}
-		}
-	}
-	return;
 }
 
 /*
