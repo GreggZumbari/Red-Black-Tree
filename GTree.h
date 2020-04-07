@@ -55,6 +55,12 @@ class GTree {
 		//int getParent();
 		int getLeft();
 		int getRight();
+		bool currentIsRed();
+		bool currentIsBlack();
+		bool leftIsRed();
+		bool leftIsBlack();
+		bool rightIsRed();
+		bool rightIsBlack();
 		bool headIsEmpty();
 		bool leftIsEmpty();
 		bool rightIsEmpty();
@@ -63,6 +69,13 @@ class GTree {
 		void setRight(int);
 		void setLeftAddress(char*);
 		void setRightAddress(char*);
+		void setLeftRed();
+		void setLeftBlack();
+		void setRightRed();
+		void setRightBlack();
+		void invertCurrentColor();
+		void updateLeftParent();
+		void updateRightParent();
 		void moveLeft();
 		void moveRight();
 		void resetCurrent();
@@ -97,7 +110,7 @@ class GTree {
 		
 		//Private functions
 		void binaryInsertionSort(GNode*);
-		//GNode* getParentNode();
+		//GNode* getParent(int);
 		
 		//Recursive functions which are also private
 		void checkChildren(GNode*&, int);

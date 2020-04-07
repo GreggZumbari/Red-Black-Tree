@@ -30,6 +30,30 @@ int GTree::getRight() {
 	return current->right->token;
 }
 
+bool GTree::currentIsRed() {
+	return current->isRed;
+}
+
+bool GTree::currentIsBlack() {
+	return !current->isRed;
+}
+
+bool GTree::leftIsRed(){
+	return current->left->isRed;
+}
+
+bool GTree::leftIsBlack() {
+	return !current->left->isRed;
+}
+
+bool GTree::rightIsRed(){
+	return current->right->isRed;
+}
+
+bool GTree::rightIsBlack() {
+	return !current->right->isRed;
+}
+
 bool GTree::headIsEmpty() {
 	//If the current token is -1, that means that it hasn't been assigned a value yet, and is thus considered null
 	//If current is just straight up NULL then yeah, it's gonna be considered null.
@@ -81,6 +105,34 @@ void GTree::setRightAddress(char* path) {
 	current->right->path = path;
 }
 
+void GTree::setLeftRed() {
+	current->left->isRed = true;
+}
+
+void GTree::setLeftBlack() {
+	current->left->isRed = false;
+}
+
+void GTree::setRightRed() {
+	current->right->isRed = true;
+}
+
+void GTree::setRightBlack() {
+	current->right->isRed = false;
+}
+
+void GTree::invertCurrentColor() {
+	current->isRed = !current->isRed;
+}
+
+void GTree::updateLeftParent() {
+	current->left->parent = current; //Set the parent pointer of the left child to be current
+}
+
+void GTree::updateRightParent() {
+	current->right->parent = current; //Set the parent pointer of the right child to be current
+}
+
 void GTree::moveLeft() {
 	current = current->left;
 }
@@ -105,51 +157,63 @@ void GTree::add(int newToken) {
 	if (headIsEmpty()) {
 		//Set the head to be the new token
 		setHead(newToken);
-		return;
 	}
-	//Go through the tree and stick the new node in purely based on its number value. We are not worrying about the colors yet.
-	while (true) {
-		//If the new token is smaller than current's token
-		if (newToken < getCurrent()) {
-			//If the left child is defined
-			if (!leftIsEmpty()) {
-				moveLeft(); //Move current one spot to the left
-				strcat(path, "0");
+	//If the head is all set and ready to roll
+	else {
+		//Go through the tree and stick the new node in purely based on its number value. We are not worrying about the colors yet.
+		while (true) {
+			//If the new token is smaller than current's token
+			if (newToken < getCurrent()) {
+				//If the left child is defined
+				if (!leftIsEmpty()) {
+					strcat(path, "0");
+					moveLeft(); //Move current one spot to the left
+				}
+				//If the left child is not defined
+				else {
+					strcat(path, "0");
+					setLeft(newToken); //Set the left child to be the new token
+					updateLeftParent(); //Update the left child to show current as the parent
+					setLeftAddress(path); //Set the left address to be what it is
+					break;
+				}
 			}
-			//If the left child is not defined
-			else {
-				strcat(path, "0");
-				setLeft(newToken); //Set the left child to be the new token
-				current->left->parent = current; //Set the parent pointer of the left child to be current
-				setLeftAddress(path); //Set the left address to be what it is
-				break;
-			}
-		}
-		//If the new token is larger than or equal to current's token
-		if (newToken >= getCurrent()) {
-			//If the right child is defined
-			if (!rightIsEmpty()) {
-				moveRight(); //Move current one spot to the right
-				strcat(path, "1");
-			}
-			//If the right child is not defined
-			else {
-				strcat(path, "1");
-				setRight(newToken); //Set the right child to be the new token
-				current->right->parent = current; //Set the parent pointer of the right child to be current
-				setRightAddress(path); //Set the right address to be what it is
-				break;
+			//If the new token is larger than or equal to current's token
+			if (newToken >= getCurrent()) {
+				//If the right child is defined
+				if (!rightIsEmpty()) {
+					strcat(path, "1");
+					moveRight(); //Move current one spot to the right
+				}
+				//If the right child is not defined
+				else {
+					strcat(path, "1");
+					setRight(newToken); //Set the right child to be the new token
+					updateRightParent(); //Update the right child to show current as the parent
+					setRightAddress(path); //Set the right address to be what it is
+					break;
+				}
 			}
 		}
 	}
 	
 	//Now make the tree satisfy the rules of the Red-Black Tree gods
-	if (current->isRed) {
-		if (!leftIsEmpty() && current->left->isRed) {
-			current->left->isRed = false;
+	//If current is head and head is red
+	cout << "Current, Head: " << current << ", " << head << endl;
+	cout << "Red: " << current->isRed << endl;
+	if (current == head && currentIsBlack()) {
+		//That's illegal. Head must be black.
+		cout << "Invert current color" << endl;
+		invertCurrentColor();
+	}
+	if (currentIsRed()) {
+		if (!leftIsEmpty() && leftIsRed()) {
+			cout << "Set left black" << endl;
+			setLeftBlack();
 		}
-		if (!rightIsEmpty() && current->right->isRed) {
-			current->right->isRed = false;
+		if (!rightIsEmpty() && rightIsRed()) {
+			cout << "Set right black" << endl;
+			setRightBlack();
 		}
 	}
 	
@@ -187,7 +251,7 @@ void GTree::printTree() {
 		
 		//Check both children of the head
 		//The head should only ever be black, but in case it ever isn't for some reason, we want the program to show that
-		if (current->isRed) {
+		if (currentIsRed()) {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to red
 		}
 		else {
@@ -257,6 +321,19 @@ void GTree::binaryInsertionSort(GNode* in) {
 		pureTreeGuts[i].token = -1;
 	}
 }
+
+/*
+GNode* GTree::getParent(int generations) {
+	GNode* buff = current;
+	for (int i = 0; i < generations; i++) {
+		//If buff has no parent, aka is the head
+		if (buff->parent == NULL) {
+			break;
+		}
+	}
+	return buff;
+}
+*/
 
 void GTree::checkChildren(GNode*& node, int generation) {
 	
@@ -336,7 +413,6 @@ void GTree::searchChildren(GNode*& node, int number) {
 }
 
 void GTree::flushChildren(GNode*& node) {
-	
 	//If the left child isn't NULL, check both of their children
 	if (node->left != NULL) {
 		//Record the current token

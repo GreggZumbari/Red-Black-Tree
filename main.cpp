@@ -27,9 +27,13 @@ bool confirmInput() - Simply asks the user for a yes or no response (y/n). Purel
 
 #define LEN 100
 #define BIGLEN 3000
+#define UNDERLINE "\033[4m"
+#define STOPUNDERLINE "\033[0m"
 
 using namespace std;
 
+void sayProgramDescription();
+void listCommands();
 //void addToTree(GTree*, int);
 int* addFunction();
 //int* removeFunction();
@@ -44,21 +48,28 @@ int main() {
 	bool quit = false;
 	int* numbersToAdd; //Going to be the current number(s) to add to the tree
 	
-	//Greetings, and an introduction to what a tree is in case the user doesn't know
-	cout << "Welcome to Gregg\'s fabulous Tree program!" << endl <<
-	"This program is a kind of number sorter which sorts the numbers given to it in a tree formation." << endl <<
-	"Each number will always have a lower number branching off to the left, and a higher number branching off to the right." << endl;
+	//Epic ASCII art... In order to print out a backslash, I need to type a double-backslash. Each double-backslash actually comes out as just 1 backslash, so this actually looks fine when you run the program.
+	cout << "-----------------------------------------------------------" << endl;
+	cout << " ____           ____       _______   ____    _____   _____ " << endl;
+	cout << "|  _ \\         |  _ \\     |___ ___| |  _ \\  |  ___| |  ___|" << endl;
+	cout << "| | \\ \\        | | \\ |       | |    | | \\ \\ | |     | |    " << endl;
+	cout << "| |_/ |  ____  | |_/ /       | |    | |_/ | | |__   | |__  " << endl;
+	cout << "|   _/  |____| |  _ |        | |    |   _/  |  __|  |  __| " << endl;
+	cout << "|   \\          | | \\ \\       | |    |   \\   | |     | |    " << endl;
+	cout << "| |\\ \\         | |_/ /       | |    | |\\ \\  | |___  | |___ " << endl;
+	cout << "|_| \\_\\        |____/        |_|    |_| \\_\\ |_____| |_____|" << endl;
+	cout << "                                                           " << endl;
+	cout << "-----------------------------------------------------------" << endl;
+	cout << endl;
+	cout << "By Greggory Hickman" << endl;
+	cout << "Made in March and April of 2020" << endl;
+	cout << endl;
+	
+	cout << "Type \"help\" or \"?\" for help" << endl;
 	
 	//The loop that the majority of the program takes place in
 	while (!quit) {
 		char cmdin[LEN];
-	
-		//Ask how the user wants to input the numbers
-		cout << "Type \"add\" to add a number" << endl << 
-		"Type \"remove\" to remove a number" << endl << 
-		"Type \"search\" to find out how many times a number appears within the tree" << endl << 
-		"Type \"print\" to print out the tree into console" << endl << 
-		"Type \"exit\" to kill the program" << endl;
 	
 		cout << "> ";
 		cin >> cmdin; cin.clear(); cin.ignore(LEN, '\n');
@@ -80,11 +91,22 @@ int main() {
 				int numberToSearchFor = searchFunction();
 				//Tell the user how many times that number appears in the tree
 				search(&tree, numberToSearchFor);
-				break;
 			}
 			else if (strcmp(cmdin, "print") == 0 || strcmp(cmdin, "p") == 0 || strcmp(cmdin, "P") == 0) {
 				//Print the tree
 				tree.printTree();
+				break;
+			}
+			//If the user typed "about"
+			else if (strcmp(cmdin, "about") == 0 || strcmp(cmdin, "b") == 0 || strcmp(cmdin, "B") == 0) {
+				//Say program description
+				sayProgramDescription();
+				break;
+			}
+			//If the user typed "help"
+			else if (strcmp(cmdin, "help") == 0 || strcmp(cmdin, "?") == 0 || /*We want to encourage good grammar here*/ strcmp(cmdin, "Help") == 0) {
+				//Print commands
+				listCommands();
 				break;
 			}
 			//If the user typed "exit"
@@ -105,9 +127,6 @@ int main() {
 		//If the user previously told the program to add (a) number(s)
 		if (strcmp(cmdin, "add") == 0 || strcmp(cmdin, "a") == 0 || strcmp(cmdin, "A") == 0) {
 			//Sort each number into the tree one by one
-			for (int i = 0; numbersToAdd[i] > 0; i++) {
-				cout << numbersToAdd[i] << endl;
-			}
 			for (int i = 0; numbersToAdd[i] > 0; i++) {
 				//Set the current pointer back to the head
 				tree.add(numbersToAdd[i]);
@@ -138,6 +157,26 @@ int main() {
 	}
 	
 	return 0;
+}
+
+void sayProgramDescription() {
+	//Greetings, and an introduction to what a tree is in case the user doesn't know
+	cout << "Welcome to Gregg\'s fabulous Red-Black Tree program!" << endl <<
+	"This program is a kind of number sorter which sorts the numbers given to it in a tree formation." << endl <<
+	"Each number will always have a lower number branching off to the left, and a higher number branching off to the right." << endl;
+}
+
+void listCommands() {
+	//Ask how the user wants to input the numbers
+	//Credit to r3mainer on https://stackoverflow.com/questions/24281603/c-underline-output for showing how to do the underlines
+	//For reference, the underlined letter is a shortcut for that command
+	cout << "Type \"" << UNDERLINE << "a" << STOPUNDERLINE << "dd\" to add a number" << endl << 
+	"Type \"" << UNDERLINE << "r" << STOPUNDERLINE << "emove\" to remove a number" << endl << 
+	"Type \"" << UNDERLINE << "s" << STOPUNDERLINE << "earch\" to find out how many times a number appears within the tree" << endl << 
+	"Type \"" << UNDERLINE << "p" << STOPUNDERLINE << "rint\" to print out the tree into console" << endl << 
+	"Type \"a" << UNDERLINE << "b" << STOPUNDERLINE << "out\" for a short description on what this program does" << endl <<
+	"Type \"help\" or \"" << UNDERLINE << "?" << STOPUNDERLINE << "\" for help" << endl <<
+	"Type \"" << UNDERLINE << "e" << STOPUNDERLINE << "xit\" to kill the program" << endl;
 }
 
 void search(GTree* tree, int numberToSearchFor) {
