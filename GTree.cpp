@@ -7,7 +7,6 @@
 //Constructor
 GTree::GTree() {
 	head = new GNode();
-	head->isRed = false;
 	current = head;
 	highestGeneration = 0;
 }
@@ -57,7 +56,7 @@ bool GTree::rightIsBlack() {
 bool GTree::headIsEmpty() {
 	//If the current token is -1, that means that it hasn't been assigned a value yet, and is thus considered null
 	//If current is just straight up NULL then yeah, it's gonna be considered null.
-	if (current == NULL || current->token == -1) 
+	if (head == NULL || head->token == -1) 
 		return true;
 	else 
 		return false;
@@ -198,24 +197,21 @@ void GTree::add(int newToken) {
 	}
 	
 	//Now make the tree satisfy the rules of the Red-Black Tree gods
-	//If current is head and head is red
-	cout << "Current, Head: " << current << ", " << head << endl;
-	cout << "Red: " << current->isRed << endl;
-	if (current == head && currentIsBlack()) {
-		//That's illegal. Head must be black.
-		cout << "Invert current color" << endl;
-		invertCurrentColor();
-	}
+	
+	//Just always set head to be black so that there is no way anybody can ever make head accidentally not black
+	head->isRed = false;
+	
 	if (currentIsRed()) {
 		if (!leftIsEmpty() && leftIsRed()) {
-			cout << "Set left black" << endl;
 			setLeftBlack();
 		}
 		if (!rightIsEmpty() && rightIsRed()) {
-			cout << "Set right black" << endl;
 			setRightBlack();
 		}
 	}
+	
+	//One more time for extra measure, also because somebody might have actually changed it back to red like an absolute egghead
+	head->isRed = false;
 	
 	return;
 }
@@ -252,10 +248,10 @@ void GTree::printTree() {
 		//Check both children of the head
 		//The head should only ever be black, but in case it ever isn't for some reason, we want the program to show that
 		if (currentIsRed()) {
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to red
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); //Set text to red
 		}
 		else {
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); //Set text to red
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray
 		}
 		
 		cout << "Generation 1: " << head->token << endl;

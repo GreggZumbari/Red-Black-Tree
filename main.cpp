@@ -91,6 +91,7 @@ int main() {
 				int numberToSearchFor = searchFunction();
 				//Tell the user how many times that number appears in the tree
 				search(&tree, numberToSearchFor);
+				haveInput = true;
 			}
 			else if (strcmp(cmdin, "print") == 0 || strcmp(cmdin, "p") == 0 || strcmp(cmdin, "P") == 0) {
 				//Print the tree
