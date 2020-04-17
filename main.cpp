@@ -5,7 +5,9 @@ A Tree is a kind of binary tree, made up of nodes. Each node points to two (2) o
 The program first allows the user to enter up to 100 different number inputs, then it will create a GTree (like a Tree, except I made it) and sort the numbers such that each parent is bigger than their two children. The program can handle numbers from one (1) to one-thousand (1000).
 
 The above description is nearly exactly copied over from my previous Tree project because this project does nearly exactly the same thing. 
-This time, however, you are allowed to add, remove, and search for specific numbers throughout the Tree. Also, the medium for the inputs will now be Node structs (named GNode, of course) instead of an int array, sorted using some clever math
+This time, however, you are allowed to add, remove, and search for specific numbers throughout the Tree. Also, the medium for the inputs will now be Node structs (named GNode, of course) instead of an int array, sorted using some clever math.
+
+In addition, the nodes are sorted using my iteration of the Red-Black Tree algorithm.
 
 void addToTree(GTree*, int) - Put a number into the tree in the place that it should be in.
 int* addFunction() - Get the user to put in their input(s) to add to the tree, and then print out the parsed version.
@@ -35,6 +37,7 @@ using namespace std;
 void sayProgramDescription();
 void listCommands();
 //void addToTree(GTree*, int);
+int* fileFunction();
 int* addFunction();
 //int* removeFunction();
 int searchFunction();
@@ -81,11 +84,36 @@ int main() {
 		while (!haveInput) {
 			//If the user typed "add"
 			if (strcmp(cmdin, "add") == 0 || strcmp(cmdin, "a") == 0 || strcmp(cmdin, "A") == 0) {
-				//Call the add function
-				numbersToAdd = addFunction();
-				//Confirm the input
-				haveInput = confirmInput();
+				//Ask which method of adding the user would like to use
+				cout << "Would you like the type your numbers directly into the console, or would you like to use some numbers stored in a file, separated by spaces?" << endl <<
+				"Type \"" << UNDERLINE << "c" << STOPUNDERLINE << "onsole\" for console, or \"" << UNDERLINE << "f" << STOPUNDERLINE << "ile\" for file:" << endl;
+				
+				char userResponse[LEN]; //This will contain the user's reply to the previous question
+				
+				//Put the user's response into userResponse. Yes, that's right, i'm getting better at naming variables
+				cout << "> ";
+				cin >> userResponse; cin.clear(); cin.ignore(LEN, '\n');
+				cout << endl;
+				
+				//Add using the console method
+				if (strcmp(userResponse, "console") == 0 || strcmp(userResponse, "c") == 0 || strcmp(userResponse, "C") == 0) {
+					//Call the add function
+					numbersToAdd = addFunction();
+					//Confirm the input
+					haveInput = confirmInput();
+				}
+				//Add using the file method
+				else if (strcmp(userResponse, "file") == 0 || strcmp(userResponse, "f") == 0 || strcmp(userResponse, "F") == 0) {
+					//Call the file function
+					numbersToAdd = fileFunction();
+					//Confirm the input
+					haveInput = confirmInput();
+				}
+				else {
+					cout << "Input method \"" << cmdin << "\" not recognized" << endl;
+				}
 			}
+			//If the user typed "search"
 			else if (strcmp(cmdin, "search") == 0 || strcmp(cmdin, "s") == 0 || strcmp(cmdin, "S") == 0) {
 				//Call the search function
 				int numberToSearchFor = searchFunction();
@@ -93,6 +121,7 @@ int main() {
 				search(&tree, numberToSearchFor);
 				haveInput = true;
 			}
+			//If the user typed "print"
 			else if (strcmp(cmdin, "print") == 0 || strcmp(cmdin, "p") == 0 || strcmp(cmdin, "P") == 0) {
 				//Print the tree
 				tree.printTree();
@@ -216,6 +245,52 @@ bool confirmInput() {
 	if (confirm == 'y') haveInput = true;
 	
 	return haveInput;
+}
+
+int* fileFunction() {
+	char fileBuffer[LEN]; //This will contain the path to the file that the user would like to read from
+	char* inputString; //This will contain the raw cstring of text from the file, if the user gives a valid file
+	FILE* fin = NULL; //Credit to my dad for showing me the FILE libraries from ye olde C
+	
+	cout << "Reading from console..." << endl <<
+	"Input the path to your file. It must be a text (.txt) file:" << endl;
+	
+	//Don't leave the while loop until the person puts in a real file with valid numbers
+	while (true) {
+		//Get address
+		cout << "File> ";
+		cin.getline(fileBuffer, LEN);
+		
+		//Get file from address
+		fin = fopen(fileBuffer, "r"); //"r" for read
+		
+		if (fin != NULL) {
+			//Now allocate the numList data
+			inputString = new char[BIGLEN];
+			cout << "Reading from file..." << endl;
+			
+			//Put the contents of the file into numList
+			fgets(inputString, BIGLEN, fin);
+			
+			//Parse the char* input into an int* with each number separated
+			int* numbersToAdd = parseZTCString(inputString, 32);
+			delete[] inputString;
+			
+			//At this point, we have our input (inputString).
+			cout << "Input: ";
+			for (int i = 0; numbersToAdd[i] != 0; i++) {
+				cout << numbersToAdd[i] << " "; //Print all int-ified inputs
+			}
+			cout << endl;
+			
+			return numbersToAdd;
+		}
+		else {
+			cout << "There was an issue opening the file at \"" << fileBuffer << "\". (Psst! Did you forget to include the extension at the end?) Please try again..." << endl;
+		}
+	}
+	fclose(fin);
+	delete fin;
 }
 
 int* addFunction() {

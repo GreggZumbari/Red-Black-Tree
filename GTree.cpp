@@ -7,7 +7,7 @@
 //Constructor
 GTree::GTree() {
 	head = new GNode();
-	current = head;
+	resetCurrent();
 	highestGeneration = 0;
 }
 
@@ -200,7 +200,7 @@ void GTree::add(int newToken) {
 	
 	//Just always set head to be black so that there is no way anybody can ever make head accidentally not black
 	head->isRed = false;
-	
+	cout << head->isRed << endl;
 	if (currentIsRed()) {
 		if (!leftIsEmpty() && leftIsRed()) {
 			setLeftBlack();
@@ -211,8 +211,9 @@ void GTree::add(int newToken) {
 	}
 	
 	//One more time for extra measure, also because somebody might have actually changed it back to red like an absolute egghead
+	cout << head->isRed << endl;
 	head->isRed = false;
-	
+	cout << head->isRed << endl;
 	return;
 }
 

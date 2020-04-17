@@ -110,7 +110,8 @@ class GTree {
 		
 		//Private functions
 		void binaryInsertionSort(GNode*);
-		//GNode* getParent(int);
+		GNode* getParent(int);
+		GNode* getSibling();
 		
 		//Recursive functions which are also private
 		void checkChildren(GNode*&, int);
