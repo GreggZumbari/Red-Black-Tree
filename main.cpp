@@ -15,8 +15,7 @@ int searchFunction() - Get the user to input the number that they want to search
 void search(GTree*, int) - Print out the amount of times that the inputted number appears in the tree with some random UI stuff added in to make the info understandable.
 bool confirmInput() - Simply asks the user for a yes or no response (y/n). Purely for modularity purposes.
 
-@author Greggory Hickman, March 2020
-@version 1.0
+@author Greggory Hickman, March-April 2020
  */
 
 #include <iostream>

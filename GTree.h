@@ -33,8 +33,7 @@ void searchChildren(GNode*&, int) - Same as checkChildren, except instead of pri
 void flushChildren(GNode*&) - Same as checkChildren, except instead of just printing out the number, it records the number in int* treeGuts, which is a class variable, then deletes it.
 
 
-@author Greggory Hickman, March 2020
-@version 1.0
+@author Greggory Hickman, March-April 2020
  */
  
 #include <iostream>
@@ -51,10 +50,10 @@ class GTree {
 		~GTree();
 		
 		//Functions
-		int getCurrent();
+		int getCurrentToken();
 		//int getParent();
-		int getLeft();
-		int getRight();
+		int getLeftToken();
+		int getRightToken();
 		bool currentIsRed();
 		bool currentIsBlack();
 		bool leftIsRed();
@@ -64,9 +63,10 @@ class GTree {
 		bool headIsEmpty();
 		bool leftIsEmpty();
 		bool rightIsEmpty();
-		void setHead(int);
-		void setLeft(int);
-		void setRight(int);
+		void setHeadBlack();
+		void setHeadToken(int);
+		void setLeftToken(int);
+		void setRightToken(int);
 		void setLeftAddress(char*);
 		void setRightAddress(char*);
 		void setLeftRed();
@@ -109,9 +109,12 @@ class GTree {
 		};
 		
 		//Private functions
-		void binaryInsertionSort(GNode*);
-		GNode* getParent(int);
-		GNode* getSibling();
+		bool isLeft(GNode*);
+		bool isRight(GNode*);
+		GNode* getLeft(GNode*);
+		GNode* getRight(GNode*);
+		GNode* getParent(GNode*, int);
+		GNode* getSibling(GNode*);
 		
 		//Recursive functions which are also private
 		void checkChildren(GNode*&, int);
@@ -120,10 +123,9 @@ class GTree {
 	
 		//Class variables
 		int* treeGuts;
-		GNode* pureTreeGuts;
+		//GNode* pureTreeGuts;
 		int highestGeneration;
 		int count;
 		GNode* head; //The head of the tree
 		GNode* current; //The current GNode that the user is looking at.
-		GNode* marker; //A marker to temporarily leave at a GNode
 };

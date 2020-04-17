@@ -17,15 +17,15 @@ GTree::~GTree() {
 	delete[] treeGuts;
 }
 
-int GTree::getCurrent() {
+int GTree::getCurrentToken() {
 	return current->token;
 }
 
-int GTree::getLeft() {
+int GTree::getLeftToken() {
 	return current->left->token;
 }
 
-int GTree::getRight() {
+int GTree::getRightToken() {
 	return current->right->token;
 }
 
@@ -80,17 +80,21 @@ bool GTree::rightIsEmpty() {
 		return false;
 }
 
-void GTree::setHead(int value) {
+void GTree::setHeadBlack() {
+	head->isRed = false;
+}
+
+void GTree::setHeadToken(int value) {
 	head->token = value;
 }
 
-void GTree::setLeft(int value) {
+void GTree::setLeftToken(int value) {
 	GNode* newNode = new GNode();
 	newNode->token = value;
 	current->left = newNode;
 }
 
-void GTree::setRight(int value) {
+void GTree::setRightToken(int value) {
 	GNode* newNode = new GNode();
 	newNode->token = value;
 	current->right = newNode;
@@ -145,6 +149,7 @@ void GTree::resetCurrent() {
 }
 
 void GTree::add(int newToken) {
+	setHeadBlack(); //Just always set head to be black so that there is no way anybody can ever make head accidentally not black
 	resetCurrent(); //Set current to the very top
 	
 	char* path = new char[LEN]; //This represents the node's path
@@ -155,14 +160,15 @@ void GTree::add(int newToken) {
 	//If the head is undefined
 	if (headIsEmpty()) {
 		//Set the head to be the new token
-		setHead(newToken);
+		setHeadToken(newToken);
+		setHeadBlack();
 	}
 	//If the head is all set and ready to roll
 	else {
 		//Go through the tree and stick the new node in purely based on its number value. We are not worrying about the colors yet.
 		while (true) {
 			//If the new token is smaller than current's token
-			if (newToken < getCurrent()) {
+			if (newToken < getCurrentToken()) {
 				//If the left child is defined
 				if (!leftIsEmpty()) {
 					strcat(path, "0");
@@ -171,14 +177,14 @@ void GTree::add(int newToken) {
 				//If the left child is not defined
 				else {
 					strcat(path, "0");
-					setLeft(newToken); //Set the left child to be the new token
+					setLeftToken(newToken); //Set the left child to be the new token
 					updateLeftParent(); //Update the left child to show current as the parent
 					setLeftAddress(path); //Set the left address to be what it is
 					break;
 				}
 			}
 			//If the new token is larger than or equal to current's token
-			if (newToken >= getCurrent()) {
+			if (newToken >= getCurrentToken()) {
 				//If the right child is defined
 				if (!rightIsEmpty()) {
 					strcat(path, "1");
@@ -187,7 +193,7 @@ void GTree::add(int newToken) {
 				//If the right child is not defined
 				else {
 					strcat(path, "1");
-					setRight(newToken); //Set the right child to be the new token
+					setRightToken(newToken); //Set the right child to be the new token
 					updateRightParent(); //Update the right child to show current as the parent
 					setRightAddress(path); //Set the right address to be what it is
 					break;
@@ -197,10 +203,6 @@ void GTree::add(int newToken) {
 	}
 	
 	//Now make the tree satisfy the rules of the Red-Black Tree gods
-	
-	//Just always set head to be black so that there is no way anybody can ever make head accidentally not black
-	head->isRed = false;
-	cout << head->isRed << endl;
 	if (currentIsRed()) {
 		if (!leftIsEmpty() && leftIsRed()) {
 			setLeftBlack();
@@ -211,47 +213,60 @@ void GTree::add(int newToken) {
 	}
 	
 	//One more time for extra measure, also because somebody might have actually changed it back to red like an absolute egghead
-	cout << head->isRed << endl;
-	head->isRed = false;
-	cout << head->isRed << endl;
+	setHeadBlack();
+	
 	return;
 }
 
 void GTree::printTree() {
-	//Print the tree
 	/*
-	cout << "Control Print: " << endl;
-	cout << "Generation 1: " << head->token << endl;
-	if (current->left != NULL) {
-		cout << "Generation 2: " << getLeft();
-	}
-	if (current->right != NULL) {
-		cout << ", " << getRight() << endl;
-	}
-	else {
-		cout << endl;
-	}
+	All colors pulled from the c++ api for reference
+
+	0   BLACK
+	1   BLUE
+	2   GREEN
+	3   CYAN
+	4   RED
+	5   MAGENTA
+	6   BROWN
+	7   LIGHTGRAY
+	8   DARKGRAY
+	9   LIGHTBLUE
+	10  LIGHTGREEN
+	11  LIGHTCYAN
+	12  LIGHTRED
+	13  LIGHTMAGENTA
+	14  YELLOW
+	15  WHITE
 	*/
+	
+	//Print the tree
 	//Starting out at the first generation
 	int generation = 1;
 	highestGeneration = 0;
 	
+	/*
 	//Initialize pureTreeGuts
 	pureTreeGuts = new GNode[LEN];
 	for (int i = 0; i < LEN; i++) {
 		pureTreeGuts[i].token = -1; //Clear the list
 	}
+	*/
 	
 	cout << "Tree: " << endl << "---" << endl;
 	//Make sure that there is something in the tree before we go and print it
 	if (!headIsEmpty()) {
+		resetCurrent();
 		
-		//Check both children of the head
+		//If head is red, which means Greggory Hickman did something incorrectly
 		//The head should only ever be black, but in case it ever isn't for some reason, we want the program to show that
 		if (currentIsRed()) {
+			//Set all text after this point to be red
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); //Set text to red
 		}
+		//If head is black, which it should be always
 		else {
+			//Set all text after this point to be dark grey
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray
 		}
 		
@@ -260,10 +275,12 @@ void GTree::printTree() {
 		
 		checkChildren(head, generation);
 		
+		/*
 		//Pretty looking tree technique, commence!
 		for (int i = 0; i < highestGeneration; i++) {
 			//Epic tree printout here
 		}
+		*/
 		
 	}
 	else {
@@ -279,7 +296,7 @@ void GTree::printTree() {
 	*/
 	
 	cout << "---" << endl << endl;
-	delete[] pureTreeGuts;
+	//delete[] pureTreeGuts;
 }
 
 int GTree::numberCount(int value) {
@@ -311,29 +328,76 @@ int* GTree::flushTree() {
 
 //Private functions only after this point
 
-void GTree::binaryInsertionSort(GNode* in) {
-	//CURRENTLY BENIGN. THIS DOES NOTHING RIGHT NOW.
-	GNode* out = new GNode[LEN]; //Later, we are going to replace 
-	for (int i = 0; i < LEN; i++) {
-		pureTreeGuts[i].token = -1;
+bool GTree::isLeft(GNode* node) {
+	//If parent is null return false
+	if (node->parent == NULL) {
+		return false;
 	}
+	//If parent's left child is node, return true
+	if (node->parent->left == node) {
+		return true;
+	}
+	//Otherwise, return false
+	return false;
 }
 
-/*
-GNode* GTree::getParent(int generations) {
-	GNode* buff = current;
+bool GTree::isRight(GNode* node) {
+	//If parent is null return false
+	if (node->parent == NULL) {
+		return false;
+	}
+	//If parent's right child is node, return true
+	if (node->parent->right == node) {
+		return true;
+	}
+	//Otherwise, return false
+	return false;
+}
+
+GTree::GNode* GTree::getLeft(GNode* node) {
+	return node->left;
+}
+
+GTree::GNode* GTree::getRight(GNode* node) {
+	return node->right;
+}
+
+GTree::GNode* GTree::getParent(GNode* node, int generations) {
+	GNode* buff = node;
 	for (int i = 0; i < generations; i++) {
 		//If buff has no parent, aka is the head
 		if (buff->parent == NULL) {
+			buff == NULL;
 			break;
+		}
+		//We shouldn't need an else because the above if has a break in it, but I'm putting this here anyway just in case
+		else {
+			buff = buff->parent;
 		}
 	}
 	return buff;
 }
-*/
+
+GTree::GNode* GTree::getSibling(GNode* node) {
+	GNode* buff = node;
+	
+	//If current is a left child
+	if (isLeft(node)) {
+		buff = getRight(getParent(buff, 1));
+	}
+	//If current is a right child
+	if (isRight(node)) {
+		buff = getLeft(getParent(buff, 1));
+	}
+	
+	return buff;
+}
+
+//Recursives only after this point
 
 void GTree::checkChildren(GNode*& node, int generation) {
 	
+	/*
 	//Put current token in pureTreeGuts
 	for (int i = 0; i < BIGLEN; i++) {
 		if (pureTreeGuts[i].token == -1) {
@@ -341,6 +405,7 @@ void GTree::checkChildren(GNode*& node, int generation) {
 			break;
 		}
 	}
+	*/
 	
 	//If the left child isn't NULL, check both of their children
 	if (node->left != NULL) {
@@ -353,7 +418,6 @@ void GTree::checkChildren(GNode*& node, int generation) {
 		}
 		//If the node is black
 		else {
-			
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray (I would do black but then you couldnt see the text against the background)
 			cout << "Generation " << ++generation << " (Left): " << node->left->token << endl;
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
