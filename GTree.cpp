@@ -1,14 +1,11 @@
 //GTree.cpp
-//Changes cout text color: SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (int)color);
-#include <windows.h>
-
 #include "GTree.h"
 
 //Constructor
 GTree::GTree() {
 	head = new GNode();
 	resetCurrent();
-	highestGeneration = 0;
+	longestPathLen = 0;
 }
 
 GTree::~GTree() {
@@ -152,6 +149,7 @@ void GTree::add(int newToken) {
 	setHeadBlack(); //Just always set head to be black so that there is no way anybody can ever make head accidentally not black
 	resetCurrent(); //Set current to the very top
 	
+	int currentPathLen = 0; //This represents the node's current path length. Will get incrementally updated.
 	char* path = new char[LEN]; //This represents the node's path
 	for (int i = 0; i < LEN; i++) {
 		path[i] = (char)0;
@@ -162,13 +160,22 @@ void GTree::add(int newToken) {
 		//Set the head to be the new token
 		setHeadToken(newToken);
 		setHeadBlack();
+		
+		//No need to update current path because we already know that this path is the longest yet, being the first one and all
+		longestPathLen = 1; //Update longest path to 1 because if head was undefined, that means that head will be the only node in the tree, meaning that generation 1 is the highest generation. Hooray!
 	}
 	//If the head is all set and ready to roll
 	else {
 		//Go through the tree and stick the new node in purely based on its number value. We are not worrying about the colors yet.
 		while (true) {
+			//Update path length tallies if current is not red
+			if (currentIsBlack()) {
+				currentPathLen++;
+			}
+			
 			//If the new token is smaller than current's token
 			if (newToken < getCurrentToken()) {
+				
 				//If the left child is defined
 				if (!leftIsEmpty()) {
 					strcat(path, "0");
@@ -180,6 +187,12 @@ void GTree::add(int newToken) {
 					setLeftToken(newToken); //Set the left child to be the new token
 					updateLeftParent(); //Update the left child to show current as the parent
 					setLeftAddress(path); //Set the left address to be what it is
+					
+					//If the current path is the longest path yet of any path before this one
+					if (currentPathLen > longestPathLen) {
+						longestPathLen = currentPathLen; //Update it!
+					}
+					
 					break;
 				}
 			}
@@ -196,6 +209,12 @@ void GTree::add(int newToken) {
 					setRightToken(newToken); //Set the right child to be the new token
 					updateRightParent(); //Update the right child to show current as the parent
 					setRightAddress(path); //Set the right address to be what it is
+					
+					//If the current path is the longest path yet of any path before this one
+					if (currentPathLen > longestPathLen) {
+						longestPathLen = currentPathLen; //Update it!
+					}
+					
 					break;
 				}
 			}
@@ -203,6 +222,7 @@ void GTree::add(int newToken) {
 	}
 	
 	//Now make the tree satisfy the rules of the Red-Black Tree gods
+	//Just to be clear, longestPathLen only counts black nodes. We encourage racism against red nodes in this program.
 	if (currentIsRed()) {
 		if (!leftIsEmpty() && leftIsRed()) {
 			setLeftBlack();
@@ -212,8 +232,20 @@ void GTree::add(int newToken) {
 		}
 	}
 	
-	//One more time for extra measure, also because somebody might have actually changed it back to red like an absolute egghead
-	setHeadBlack();
+	//If this node's got more black nodes leading up to it than other nodes do
+	if (currentPathLen > longestPathLen) {
+		cout << "R-B Algorithm is commencing" << endl;
+		//Conceal, don't feel (now the real fun begins)
+		
+		
+		//If current is right child
+		//Rotate left
+		
+		//If current is left child
+		//Rotate right
+	}
+	
+	setHeadBlack(); //One more time for extra measure
 	
 	return;
 }
@@ -243,14 +275,18 @@ void GTree::printTree() {
 	//Print the tree
 	//Starting out at the first generation
 	int generation = 1;
-	highestGeneration = 0;
+	longestPathLen = 0;
 	
 	/*
 	//Initialize pureTreeGuts
-	pureTreeGuts = new GNode[LEN];
+	pureTreeGuts = new GNode*[LEN];
+	
 	for (int i = 0; i < LEN; i++) {
-		pureTreeGuts[i].token = -1; //Clear the list
+		if (pureTreeGuts[i] != NULL) {
+			pureTreeGuts[i]->token = -1; //Clear the list
+		}
 	}
+	fillTreeGuts(head);
 	*/
 	
 	cout << "Tree: " << endl << "---" << endl;
@@ -275,10 +311,16 @@ void GTree::printTree() {
 		
 		checkChildren(head, generation);
 		
-		/*
 		//Pretty looking tree technique, commence!
-		for (int i = 0; i < highestGeneration; i++) {
-			//Epic tree printout here
+		/*
+		char progressivePath[LEN];
+		//Cycle through each generation
+		longestPathLen = 5;
+		for (int i = 0; i < longestPathLen; i++) {
+			//Cycle through each possible slot in that generation
+			for (int j = 0; j < pow(2, i); j++) {
+				cout << j << endl;
+			}
 		}
 		*/
 		
@@ -424,7 +466,7 @@ void GTree::checkChildren(GNode*& node, int generation) {
 		}
 
 		//Update highest if needed
-		if (generation > highestGeneration) highestGeneration = generation;
+		if (generation > longestPathLen) longestPathLen = generation;
 		
 		//Check the children of the left node
 		checkChildren(node->left, generation); //Check the next generation
@@ -447,7 +489,7 @@ void GTree::checkChildren(GNode*& node, int generation) {
 		}
 		
 		//Update highest if needed
-		if (generation > highestGeneration) highestGeneration = generation;
+		if (generation > longestPathLen) longestPathLen = generation;
 		
 		//Check the children of the right node
 		checkChildren(node->right, generation);
@@ -496,3 +538,27 @@ void GTree::flushChildren(GNode*& node) {
 	delete[] node->path;
 	delete[] node; //Down the toilet this node goes!
 }
+
+/*
+void GTree::fillTreeGuts(GNode*& node) {
+	//If the left child isn't NULL, check both of their children
+	if (node->left != NULL) {
+		//Record the current token
+		pureTreeGuts[count] = node->left;
+		count++;
+		
+		//Check the children of the right node
+		fillTreeGuts(node->left); //Check the next generation
+	}
+	//If the right child isn't NULL, check both of their children
+	if (node->right != NULL) {
+		//Record the current token
+		pureTreeGuts[count] = node->right;
+		count++;
+		
+		//Check the children of the right node
+		fillTreeGuts(node->right);
+	}
+	return;
+}
+*/

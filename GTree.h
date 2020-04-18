@@ -34,9 +34,11 @@ void flushChildren(GNode*&) - Same as checkChildren, except instead of just prin
 
 
 @author Greggory Hickman, March-April 2020
- */
+*/
  
 #include <iostream>
+#include <math.h>
+#include <windows.h>
 
 #define LEN 100
 #define BIGLEN 3000
@@ -119,13 +121,14 @@ class GTree {
 		//Recursive functions which are also private
 		void checkChildren(GNode*&, int);
 		void searchChildren(GNode*&, int);
+		//void fillTreeGuts(GNode*&);
 		void flushChildren(GNode*&);
 	
 		//Class variables
 		int* treeGuts;
-		//GNode* pureTreeGuts;
-		int highestGeneration;
-		int count;
+		//GNode** pureTreeGuts;
+		int longestPathLen;
+		int count; //An iterator. You can basically ignore this variable with no consequence.
 		GNode* head; //The head of the tree
 		GNode* current; //The current GNode that the user is looking at.
 };
