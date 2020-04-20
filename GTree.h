@@ -113,21 +113,31 @@ class GTree {
 		//Private functions
 		bool isLeft(GNode*);
 		bool isRight(GNode*);
+		bool isRed(GNode*);
+		bool isBlack(GNode*);
+		void setRed(GNode*);
+		void setBlack(GNode*);
+		void invertColor(GNode*);
+		void setLeft(GNode*);
+		void setRight(GNode*);
 		GNode* getLeft(GNode*);
 		GNode* getRight(GNode*);
 		GNode* getParent(GNode*, int);
 		GNode* getSibling(GNode*);
+		GNode* getUncle(GNode*);
 		
 		//Recursive functions which are also private
+		void checkCases(GNode*);
 		void checkChildren(GNode*&, int);
 		void searchChildren(GNode*&, int);
 		//void fillTreeGuts(GNode*&);
 		void flushChildren(GNode*&);
+		void updateParentPointers(GNode*);
 	
 		//Class variables
 		int* treeGuts;
 		//GNode** pureTreeGuts;
-		int longestPathLen;
+		//int longestPathLen;
 		int count; //An iterator. You can basically ignore this variable with no consequence.
 		GNode* head; //The head of the tree
 		GNode* current; //The current GNode that the user is looking at.

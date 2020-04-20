@@ -1,11 +1,13 @@
 //GTree.cpp
 #include "GTree.h"
 
+//GNode Constructor
+
 //Constructor
 GTree::GTree() {
 	head = new GNode();
 	resetCurrent();
-	longestPathLen = 0;
+	//longestPathLen = 0;
 }
 
 GTree::~GTree() {
@@ -146,7 +148,6 @@ void GTree::resetCurrent() {
 }
 
 void GTree::add(int newToken) {
-	setHeadBlack(); //Just always set head to be black so that there is no way anybody can ever make head accidentally not black
 	resetCurrent(); //Set current to the very top
 	
 	int currentPathLen = 0; //This represents the node's current path length. Will get incrementally updated.
@@ -159,23 +160,26 @@ void GTree::add(int newToken) {
 	if (headIsEmpty()) {
 		//Set the head to be the new token
 		setHeadToken(newToken);
-		setHeadBlack();
 		
+		/*
 		//No need to update current path because we already know that this path is the longest yet, being the first one and all
-		longestPathLen = 1; //Update longest path to 1 because if head was undefined, that means that head will be the only node in the tree, meaning that generation 1 is the highest generation. Hooray!
+		longestPathLen = 1; //Update longest path to 1 because if head was undefined, that means that head will be the only node in the tree, meaning that generation 1 is the highest generation. Because head is the only node, that also means we don't need to worry about different amounts of black nodes per leaf on this iteration.
+		*/
 	}
+	
 	//If the head is all set and ready to roll
 	else {
 		//Go through the tree and stick the new node in purely based on its number value. We are not worrying about the colors yet.
 		while (true) {
+			/*
 			//Update path length tallies if current is not red
 			if (currentIsBlack()) {
 				currentPathLen++;
 			}
+			*/
 			
 			//If the new token is smaller than current's token
 			if (newToken < getCurrentToken()) {
-				
 				//If the left child is defined
 				if (!leftIsEmpty()) {
 					strcat(path, "0");
@@ -187,11 +191,7 @@ void GTree::add(int newToken) {
 					setLeftToken(newToken); //Set the left child to be the new token
 					updateLeftParent(); //Update the left child to show current as the parent
 					setLeftAddress(path); //Set the left address to be what it is
-					
-					//If the current path is the longest path yet of any path before this one
-					if (currentPathLen > longestPathLen) {
-						longestPathLen = currentPathLen; //Update it!
-					}
+					moveLeft(); //Move left so that checkCases() looks at the correct node
 					
 					break;
 				}
@@ -209,11 +209,7 @@ void GTree::add(int newToken) {
 					setRightToken(newToken); //Set the right child to be the new token
 					updateRightParent(); //Update the right child to show current as the parent
 					setRightAddress(path); //Set the right address to be what it is
-					
-					//If the current path is the longest path yet of any path before this one
-					if (currentPathLen > longestPathLen) {
-						longestPathLen = currentPathLen; //Update it!
-					}
+					moveRight(); //Move right so that checkCases() looks at the correct node
 					
 					break;
 				}
@@ -222,30 +218,9 @@ void GTree::add(int newToken) {
 	}
 	
 	//Now make the tree satisfy the rules of the Red-Black Tree gods
-	//Just to be clear, longestPathLen only counts black nodes. We encourage racism against red nodes in this program.
-	if (currentIsRed()) {
-		if (!leftIsEmpty() && leftIsRed()) {
-			setLeftBlack();
-		}
-		if (!rightIsEmpty() && rightIsRed()) {
-			setRightBlack();
-		}
-	}
-	
-	//If this node's got more black nodes leading up to it than other nodes do
-	if (currentPathLen > longestPathLen) {
-		cout << "R-B Algorithm is commencing" << endl;
-		//Conceal, don't feel (now the real fun begins)
-		
-		
-		//If current is right child
-		//Rotate left
-		
-		//If current is left child
-		//Rotate right
-	}
-	
-	setHeadBlack(); //One more time for extra measure
+	cout << "- Checking cases start -" << endl;
+	cout << "New node: " << getCurrentToken() << endl;
+	checkCases(current);
 	
 	return;
 }
@@ -275,7 +250,7 @@ void GTree::printTree() {
 	//Print the tree
 	//Starting out at the first generation
 	int generation = 1;
-	longestPathLen = 0;
+	//longestPathLen = 0;
 	
 	/*
 	//Initialize pureTreeGuts
@@ -371,29 +346,59 @@ int* GTree::flushTree() {
 //Private functions only after this point
 
 bool GTree::isLeft(GNode* node) {
+	//If node is NULL return false
+	if (node == NULL) return false;
 	//If parent is null return false
-	if (node->parent == NULL) {
-		return false;
-	}
-	//If parent's left child is node, return true
-	if (node->parent->left == node) {
-		return true;
-	}
+	if (node->parent == NULL) return false;
+	//If parent's left child is node and not NULL, return true
+	if (node->parent->left != NULL && node->parent->left == node) return true;
 	//Otherwise, return false
 	return false;
 }
 
 bool GTree::isRight(GNode* node) {
+	//If node is NULL return false
+	if (node == NULL) return false;
 	//If parent is null return false
-	if (node->parent == NULL) {
-		return false;
-	}
-	//If parent's right child is node, return true
-	if (node->parent->right == node) {
-		return true;
-	}
+	if (node->parent == NULL) return false;
+	//If parent's right child is node and not NULL, return true
+	if (node->parent->right != NULL && node->parent->right == node) return true;
 	//Otherwise, return false
 	return false;
+}
+
+bool GTree::isRed(GNode* node) {
+	if (node == NULL) {
+		return false; //Because NULL is black
+	}
+	return node->isRed;
+}
+
+bool GTree::isBlack(GNode* node) {
+	if (node == NULL) {
+		return true; //Because NULL is black
+	}
+	return !node->isRed;
+}
+
+void GTree::setRed(GNode* node) {
+	node->isRed = true;
+}
+
+void GTree::setBlack(GNode* node) {
+	node->isRed = false;
+}
+
+void GTree::invertColor(GNode* node) {
+	node->isRed = !node->isRed;
+}
+
+void GTree::setLeft(GNode* node) {
+	current->left = node;
+}
+		
+void GTree::setRight(GNode* node) {
+	current->right = node;
 }
 
 GTree::GNode* GTree::getLeft(GNode* node) {
@@ -405,14 +410,16 @@ GTree::GNode* GTree::getRight(GNode* node) {
 }
 
 GTree::GNode* GTree::getParent(GNode* node, int generations) {
+	//If node is NULL, I don't know what you want from me. Return NULL.
+	if (node == NULL) {
+		return NULL;
+	}
 	GNode* buff = node;
 	for (int i = 0; i < generations; i++) {
 		//If buff has no parent, aka is the head
 		if (buff->parent == NULL) {
-			buff == NULL;
-			break;
+			return NULL;
 		}
-		//We shouldn't need an else because the above if has a break in it, but I'm putting this here anyway just in case
 		else {
 			buff = buff->parent;
 		}
@@ -432,10 +439,201 @@ GTree::GNode* GTree::getSibling(GNode* node) {
 		buff = getLeft(getParent(buff, 1));
 	}
 	
+	//If sibling is NULL, that's okay. Then, we just return NULL.
 	return buff;
 }
 
+GTree::GNode* GTree::getUncle(GNode* node) {
+	//If node is NULL, I don't know what you want from me. Return NULL.
+	if (node == NULL) {
+		return NULL;
+	}
+	GNode* buff = node;
+	//If parent is NULL, there isn't an uncle either, so return NULL
+	if (buff->parent == NULL) {
+		return NULL;
+	}
+	//If parent is left, return grandparent's right child, which must be uncle
+	else if (isLeft(buff->parent)) {
+		return getRight(getParent(buff, 2));
+	}
+	//If parent is right, return grandparent's left child, which must be uncle
+	else if (isRight(buff->parent)) {
+		return getLeft(getParent(buff, 2));
+	}
+	//If the parent is neither a left, nor a right child, and isn't NULL, that means either something went horribly wrong, or parent is the head, in which case, there is no uncle. So, return NULL.
+	//By the way, isLeft() and isRight() both return false if parent is NULL. If only have the check at the beginning to make this code more readable
+	else {
+		return NULL;
+	}
+}
+
 //Recursives only after this point
+
+void GTree::checkCases(GNode* node) {
+	printTree();
+	/*
+	Some quick clarifying information:
+	Most people call the very top node from which all other nodes branch off of the "root". This makes no sense to me, because roots spread outwards and are plentiful, and there's not just one of them usually. Instead, I'm calling it the "head".
+	I'm still calling the NULL pointers at the very ends of the branches "leaves".
+	I'm calling grandparent's parent "ancestor"
+	*/
+	
+	//Case 2: If parent is black and node is red
+	//Do nothing. Why does this case exist?
+	cout << "- Case 2 -" << endl;
+	printTree();
+	
+	//Case 3: If parent and uncle are both red (and also grandpa is black)
+	//Make parent and uncle black and grandpa red, then, run through all 5 cases on the grandparent
+	if (isRed(getParent(node, 1)) && isRed(getUncle(node))) {
+		setBlack(getParent(node, 1)); //Set parent black
+		setBlack(getUncle(node)); //Set uncle black
+		setRed(getParent(node, 2)); //Set grandparent red
+		cout << "- Checking grandparent from Case 3 -" << endl;
+		checkCases(getParent(node, 2)); //Check grandpa
+		cout << "- Case 3: True -" << endl;
+	}
+	else {
+		cout << "- Case 3: False -" << endl;
+	}
+	printTree();
+	
+	//Case 4: If uncle is black, parent is left, and node is right. Or, if uncle is black, parent is right, and node is left
+	//Rotate through parent
+	if (isBlack(getUncle(node)) &&
+	(isLeft(getParent(node, 1)) || getParent(node, 1) == NULL) && /* If parent is NULL, it will return false for left always */
+	isRight(node)) {
+		
+		GNode* _parent = getParent(node, 1); //Create a temporary variable to hold parent's address
+		current = _parent; //Set current to point at parent
+		setRight(getLeft(node)); //Set parent's right child to node's left child, replacing node
+		
+		current = getParent(_parent, 1); //Get grandparent
+		setLeft(node); //Set grandparent's left child to node, replacing parent
+		
+		current = node;
+		setLeft(_parent); //Set node's left child to parent, replacing node's old left child
+		
+		//Update all parent pointers to be correct
+		updateParentPointers(getParent(_parent, 1));
+		
+		cout << "- Case 4: True -" << endl;
+	}
+	else if (isBlack(getUncle(node)) && 
+	(isRight(getParent(node, 1)) || getParent(node, 1) == NULL) && 
+	isLeft(node)) {
+		GNode* _parent = getParent(node, 1); //Create a temporary variable to hold parent's address
+		current = _parent; //Set current to point at parent
+		setLeft(getRight(node)); //Set parent's left child to node's right child, replacing node
+		
+		current = getParent(_parent, 1); //Get grandparent
+		setRight(node); //Set grandparent's right child to node, replacing parent
+		
+		current = node;
+		setRight(_parent); //Set node's right child to parent, replacing node's old right child
+		
+		//Update all parent pointers to be correct
+		updateParentPointers(getParent(_parent, 1));
+		
+		node = _parent; //Parent is now the bottom-most node, thus, it should be treated as the new "node" now
+		
+		cout << "- Case 4: True -" << endl;
+	}
+	else {
+		cout << "- Case 4: False -" << endl;
+	}
+	printTree();
+	
+	//Case 5: If uncle is black, parent is left, and node is left. Or, if uncle is black, parent is right, and node is right
+	//Rotate through grandparent, then switch the old parent and old grandparent's colors
+	if (isBlack(getUncle(node)) && 
+	isLeft(getParent(node, 1)) && 
+	isLeft(node)) {
+		GNode* _parent = getParent(node, 1); //Create a temporary pointer to the parent (purely for convenience and efficiency)
+		GNode* _grandparent = getParent(node, 2); //Create a temporary pointer to the grandparent (WE REALLY NEED THIS POINTER!! DON'T REMOVE IT UNLESS ITS AN EMERGENCY!!!!)
+		
+		//If grandparent is a left child
+		if (isLeft(_grandparent)) {
+			current = getParent(_grandparent, 1); //Set current to ancestor
+			setLeft(getParent(node, 1)); //Set ancestor's left child to be parent
+		}
+		//If grandparent is a right child
+		else if (isRight(_grandparent)) {
+			current = getParent(_grandparent, 1); //Set current to ancestor
+			setRight(getParent(node, 1)); //Set ancestor's left child to be parent
+		} 
+		//Otherwise, grandparent must be the head
+		else {
+			head = getParent(node, 1); //Set head to be parent
+		}
+		
+		current = _grandparent; //Set current to grandparent
+		setLeft(getRight(_parent)); //Set grandparent's left child to be parent's right child
+		
+		current = _parent; //Set current to parent
+		setRight(_grandparent); //Set parent's right child to be grandparent
+		
+		//Swap the colors of grandparent and parent
+		bool isGrandpaRed = isRed(_grandparent);
+		_grandparent->isRed = _parent->isRed;
+		_parent->isRed = isGrandpaRed;
+		
+		//Update all parent pointers to be correct
+		updateParentPointers(_parent);
+		
+		//No need for "node" to be updated because this is the last case, but I'll do it anyway
+		node = getRight(_grandparent); //The node formerly known as grandparent is now the parent, so it's child should now be the new "node"
+		
+		cout << "- Case 5: True -" << endl;
+	}
+	else if (isBlack(getUncle(node)) && 
+	isRight(getParent(node, 1)) && 
+	isRight(node)) {
+		GNode* _parent = getParent(node, 1); //Create a temporary pointer to the parent (purely for convenience and efficiency)
+		GNode* _grandparent = getParent(node, 2); //Create a temporary pointer to the grandparent (WE REALLY NEED THIS POINTER!! DON'T REMOVE IT UNLESS ITS AN EMERGENCY!!!!)
+		
+		//If grandparent is a left child
+		if (isLeft(_grandparent)) {
+			current = getParent(_grandparent, 1); //Set current to ancestor
+			setLeft(getParent(node, 1)); //Set ancestor's left child to be parent
+		}
+		//If grandparent is a right child
+		else if (isRight(_grandparent)) {
+			current = getParent(_grandparent, 1); //Set current to ancestor
+			setRight(getParent(node, 1)); //Set ancestor's left child to be parent
+		} 
+		//Otherwise, grandparent must be the head
+		else {
+			head = getParent(node, 1); //Set head to be parent
+		}
+		
+		current = _grandparent; //Set current to grandparent
+		setRight(getLeft(_parent)); //Set grandparent's right child to be parent's left child
+		
+		current = _parent; //Set current to parent
+		setLeft(_grandparent); //Set parent's left child to be grandparent
+		
+		//Update all parent pointers to be correct
+		updateParentPointers(_parent);
+		
+		//No need for "node" to be updated because this is the last case, but I'll do it anyway
+		node = getRight(_grandparent); //The node formerly known as grandparent is now the parent, so it's child should now be the new "node"
+		
+		cout << "- Case 5: True -" << endl;
+	}
+	else {
+		cout << "- Case 5: False -" << endl;
+	}
+	printTree();
+	
+	//Case 1: If the node is being inserted at the head
+	//~WARNING~ If you put this at the beginning like Lord Galbraith said to, then sometimes, the head ends up red rather than black because of a rotation. So, this needs to stay here at the end.
+	//I think it's more efficient to just automatically set the head to black every single time rather than query about it every single time
+	setHeadBlack();
+	cout << "- Case 1 -" << endl;
+	printTree();
+}
 
 void GTree::checkChildren(GNode*& node, int generation) {
 	
@@ -465,8 +663,10 @@ void GTree::checkChildren(GNode*& node, int generation) {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
 		}
 
+		/*
 		//Update highest if needed
 		if (generation > longestPathLen) longestPathLen = generation;
+		*/
 		
 		//Check the children of the left node
 		checkChildren(node->left, generation); //Check the next generation
@@ -488,8 +688,10 @@ void GTree::checkChildren(GNode*& node, int generation) {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
 		}
 		
+		/*
 		//Update highest if needed
 		if (generation > longestPathLen) longestPathLen = generation;
+		*/
 		
 		//Check the children of the right node
 		checkChildren(node->right, generation);
@@ -537,6 +739,22 @@ void GTree::flushChildren(GNode*& node) {
 	
 	delete[] node->path;
 	delete[] node; //Down the toilet this node goes!
+}
+
+void GTree::updateParentPointers(GNode* node) {
+	//Check left child
+	if (getLeft(node) != NULL) {
+		//Update left child's parent
+		updateLeftParent();
+		//Check left's children
+		updateParentPointers(getLeft(node));
+	}
+	if (getRight(node) != NULL) {
+		//Update right child's parent
+		updateRightParent();
+		//Check right's children
+		updateParentPointers(getRight(node));
+	}
 }
 
 /*
