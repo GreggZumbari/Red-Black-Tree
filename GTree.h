@@ -108,18 +108,6 @@ class GTree {
 					path[i] = (char)0;
 				}
 			}
-			
-			char * getParentTxt() {
-				static char buf[50];
-				
-				if (parent == NULL) {
-					sprintf(buf, "NULL");
-				}
-				else {
-					sprintf(buf, "%d", parent->token);
-				}				
-				return buf;
-			}
 		};
 		
 		//Private functions
@@ -147,6 +135,7 @@ class GTree {
 		//void updateParentPointers(GNode*&);
 	
 		//Class variables
+		
 		int* treeGuts;
 		//GNode** pureTreeGuts;
 		//int longestPathLen;
