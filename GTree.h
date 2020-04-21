@@ -128,14 +128,13 @@ class GTree {
 		
 		//Recursive functions which are also private
 		void checkCases(GNode*);
-		void checkChildren(GNode*&, int);
+		void checkChildren(GNode*&, int, char*);
 		void searchChildren(GNode*&, int);
 		//void fillTreeGuts(GNode*&);
 		void flushChildren(GNode*&);
 		//void updateParentPointers(GNode*&);
 	
 		//Class variables
-		
 		int* treeGuts;
 		//GNode** pureTreeGuts;
 		//int longestPathLen;

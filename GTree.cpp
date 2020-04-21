@@ -217,8 +217,8 @@ void GTree::add(int newToken) {
 	}
 	
 	//Now make the tree satisfy the rules of the Red-Black Tree gods
-	cout << "- Checking cases start -" << endl;
-	cout << "New node: " << getCurrentToken() << endl;
+	//cout << "- Checking cases start -" << endl;
+	//cout << "New node: " << getCurrentToken() << endl;
 	checkCases(current);
 	
 	return;
@@ -272,7 +272,9 @@ void GTree::printTree() {
 		
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
 		
-		checkChildren(head, generation);
+		char* dynamicPath = new char[BIGLEN]; //This will contain the dynamic path
+		strcpy(dynamicPath, "head");
+		checkChildren(head, generation, dynamicPath);
 		
 		//Pretty looking tree technique, commence!
 		/*
@@ -467,25 +469,7 @@ GTree::GNode* GTree::getUncle(GNode* node) {
 void GTree::checkCases(GNode* node) {
 	//Case 5: If uncle is black, parent and node are both red, parent is left, and node is left. Or, if uncle is black, parent and node are both red, parent is right, and node is right
 	//Rotate through grandparent, then switch the old parent and old grandparent's colors
-	printTree();
-	
-	if (getUncle(node) != NULL) {
-		cout << "Is Uncle Black: " << "(" << getUncle(node)->token << ")" << isBlack(getUncle(node)) << endl;
-	} else {
-		cout << "Is Uncle Black: " << "(" << "NULL" << ")" << isBlack(getUncle(node)) << endl;
-	}
-	if (getUncle(node) != NULL) {
-		cout << "Is Parent Red: " << "(" << getParent(node, 1)->token << ")" << isRed(getParent(node, 1)) << endl;
-	} else {
-		cout << "Is Parent Red: " << "(" << "NULL" << ")" << isRed(getParent(node, 1)) << endl;
-	}
-	cout << "Is Node Red: " << "(" << node->token << ")" << isRed(node) << endl;
-	if (getUncle(node) != NULL) {
-		cout << "Is Parent Right: " << "(" << getParent(node, 1)->token << ")" << isRight(getParent(node, 1)) << endl;
-	} else {
-		cout << "Is Parent Right: " << "(" << "NULL" << ")" << isRight(getParent(node, 1)) << endl;
-	}
-	cout << "Is Node Right: " << "(" << node->token << ")" << isRight(node) << endl;
+	//printTree();
 	
 	/*
 	Some quick clarifying information:
@@ -496,8 +480,8 @@ void GTree::checkCases(GNode* node) {
 	
 	//Case 2: If parent is black and node is red
 	//Do nothing. Why does this case exist?
-	cout << "- Case 2 -" << endl;
-	printTree();
+	//cout << "- Case 2 -" << endl;
+	//printTree();
 	
 	//Case 3: If parent and uncle are both red (and also grandpa is black)
 	//Make parent and uncle black and grandpa red, then, run through all 5 cases on the grandparent
@@ -505,26 +489,17 @@ void GTree::checkCases(GNode* node) {
 		setBlack(getParent(node, 1)); //Set parent black
 		setBlack(getUncle(node)); //Set uncle black
 		setRed(getParent(node, 2)); //Set grandparent red
-		cout << "- Checking grandparent from Case 3 -" << endl;
-		cout << "Grandparent: " << getParent(node, 2)->token << endl;
-		cout << "- Case 3: True -" << endl;
-		
-		GNode* gp = getParent(node, 2);
-		if (gp != NULL) {
-			cout << "gp left: " << gp->left->token << endl;
-			cout << "gp right: " << gp->right->token << endl;
-			if (gp->parent != NULL) {
-				cout << "gp parent: " << gp->parent->token << endl;
-			}
-		}
+		//cout << "- Checking grandparent from Case 3 -" << endl;
+		//cout << "Grandparent: " << getParent(node, 2)->token << endl;
+		//cout << "- Case 3: True -" << endl;
 		
 		checkCases(getParent(node, 2)); //Check grandpa
-		cout << "- Done checking on grandparent from Case 3 -" << endl;
+		//cout << "- Done checking on grandparent from Case 3 -" << endl;
 	}
 	else {
-		cout << "- Case 3: False -" << endl;
+		//cout << "- Case 3: False -" << endl;
 	}
-	printTree();
+	//printTree();
 	
 	//Case 4: If uncle is black, parent and node are both red, parent is left, and node is right. Or, if uncle is black, parent is right, and node is left
 	//Rotate through parent
@@ -549,7 +524,7 @@ void GTree::checkCases(GNode* node) {
 		
 		node = _parent; //Parent is now the bottom-most node, thus, it should be treated as the new "node" now
 		
-		cout << "- Case 4: True -" << endl;
+		//cout << "- Case 4: True -" << endl;
 	}
 	else if (isBlack(getUncle(node)) && 
 	isRed(getParent(node, 1)) &&
@@ -572,12 +547,12 @@ void GTree::checkCases(GNode* node) {
 		
 		node = _parent; //Parent is now the bottom-most node, thus, it should be treated as the new "node" now
 		
-		cout << "- Case 4: True -" << endl;
+		//cout << "- Case 4: True -" << endl;
 	}
 	else {
-		cout << "- Case 4: False -" << endl;
+		//cout << "- Case 4: False -" << endl;
 	}
-	printTree();
+	//printTree();
 	
 	//Case 5: If uncle is black, parent and node are both red, parent is left, and node is left. Or, if uncle is black, parent is right, and node is right
 	//Rotate through grandparent, then switch the old parent and old grandparent's colors
@@ -618,7 +593,7 @@ void GTree::checkCases(GNode* node) {
 		//No need for "node" to be updated because this is the last case, but I'll do it anyway
 		node = getRight(_grandparent); //The node formerly known as grandparent is now the parent, so it's child should now be the new "node"
 		
-		cout << "- Case 5: True -" << endl;
+		//cout << "- Case 5: True -" << endl;
 	}
 	else if (isBlack(getUncle(node)) && 
 	isRed(getParent(node, 1)) &&
@@ -657,37 +632,42 @@ void GTree::checkCases(GNode* node) {
 		//No need for "node" to be updated because this is the last case, but I'll do it anyway
 		node = getRight(_grandparent); //The node formerly known as grandparent is now the parent, so it's child should now be the new "node"
 		
-		cout << "- Case 5: True -" << endl;
+		//cout << "- Case 5: True -" << endl;
 	}
 	else {
-		cout << "- Case 5: False -" << endl;
+		//cout << "- Case 5: False -" << endl;
 	}
-	printTree();
+	//printTree();
 	
 	//Case 1: If the node is being inserted at the head
 	//~WARNING~ If you put this at the beginning like Lord Galbraith said to, then sometimes, the head ends up red rather than black because of a rotation. So, this needs to stay here at the end.
 	//I think it's more efficient to just automatically set the head to black every single time rather than query about it every single time
 	setHeadBlack();
-	cout << "- Case 1 -" << endl;
-	printTree();
+	//cout << "- Case 1 -" << endl;
+	//printTree();
 }
 
-void GTree::checkChildren(GNode*& node, int generation) {
+void GTree::checkChildren(GNode*& node, int generation, char* inPath) {
+	
 	
 	//If the left child isn't NULL, check both of their children
 	if (node->left != NULL) {
 		//Print out the next node's token now so that we can specify which direction that it is in relation to the current node
+		
+		strcat(outPath, "->left"); //Update dynamic path
+		
 		//If the node is red
-				
 		if (node->left->isRed) {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); //Set text to red
 			cout << "Generation " << ++generation << " (Left): " << node->left->token << endl;
+			//cout << outPath << ": " << node->left->token << " (Generation " << ++generation << ")" << endl;
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
 		}
 		//If the node is black
 		else {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray (I would do black but then you couldnt see the text against the background)
 			cout << "Generation " << ++generation << " (Left): " << node->left->token << endl;
+			//cout << outPath << ": " << node->left->token << " (Generation " << ++generation << ")" << endl;
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
 		}
 
@@ -697,23 +677,27 @@ void GTree::checkChildren(GNode*& node, int generation) {
 		*/
 		
 		//Check the children of the left node
-		checkChildren(node->left, generation); //Check the next generation
+		checkChildren(node->left, generation, outPath); //Check the next generation
 		generation--;
 	}
 	//If the right child isn't NULL, check both of their children
 	if (node->right != NULL) {
 		//Print out the next node's token now so that we can specify which direction that it is in relation to the current node
-		//If the node is red
 		
+		strcat(outPath, "->right"); //Update dynamic path
+		
+		//If the node is red
 		if (node->right->isRed) {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); //Set text to red
 			cout << "Generation " << ++generation << " (Right): " << node->right->token << endl;
+			//cout << outPath << ": " << node->right->token << " (Generation " << ++generation << ")" << endl;
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to white
 		}
 		//If the node is black
 		else {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray (I would do black but then you couldnt see the text against the background)
 			cout << "Generation " << ++generation << " (Right): " << node->right->token << endl;
+			//cout << outPath << ": " << node->right->token << " (Generation " << ++generation << ")" << endl;
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
 		}
 		
@@ -723,9 +707,11 @@ void GTree::checkChildren(GNode*& node, int generation) {
 		*/
 		
 		//Check the children of the right node
-		checkChildren(node->right, generation);
+		checkChildren(node->right, generation, outPath);
 		generation--;
 	}
+	
+	delete[] outPath; //Clear up that space once we're done here
 }
 
 void GTree::searchChildren(GNode*& node, int number) {
