@@ -108,6 +108,18 @@ class GTree {
 					path[i] = (char)0;
 				}
 			}
+			
+			char * getParentTxt() {
+				static char buf[50];
+				
+				if (parent == NULL) {
+					sprintf(buf, "NULL");
+				}
+				else {
+					sprintf(buf, "%d", parent->token);
+				}				
+				return buf;
+			}
 		};
 		
 		//Private functions
@@ -132,7 +144,7 @@ class GTree {
 		void searchChildren(GNode*&, int);
 		//void fillTreeGuts(GNode*&);
 		void flushChildren(GNode*&);
-		void updateParentPointers(GNode*);
+		//void updateParentPointers(GNode*&);
 	
 		//Class variables
 		int* treeGuts;
