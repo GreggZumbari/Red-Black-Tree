@@ -268,11 +268,11 @@ void GTree::printTree() {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray
 		}
 		
-		cout << "Generation 1: " << head->token << endl;
+		cout << "head: " << head->token << "(Generation 1)" << endl;
 		
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
 		
-		char* dynamicPath = new char[BIGLEN]; //This will contain the dynamic path
+		char* dynamicPath = new char[LEN]; //This will contain the dynamic path
 		strcpy(dynamicPath, "head");
 		checkChildren(head, generation, dynamicPath);
 		
@@ -648,26 +648,28 @@ void GTree::checkCases(GNode* node) {
 }
 
 void GTree::checkChildren(GNode*& node, int generation, char* inPath) {
-	
+	char* outPath1;
+	char* outPath2;
 	
 	//If the left child isn't NULL, check both of their children
 	if (node->left != NULL) {
 		//Print out the next node's token now so that we can specify which direction that it is in relation to the current node
-		
-		strcat(outPath, "->left"); //Update dynamic path
+		outPath1 = new char[LEN];
+		strcpy(outPath1, inPath);
+		strcat(outPath1, "->left"); //Update dynamic path
 		
 		//If the node is red
 		if (node->left->isRed) {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); //Set text to red
-			cout << "Generation " << ++generation << " (Left): " << node->left->token << endl;
-			//cout << outPath << ": " << node->left->token << " (Generation " << ++generation << ")" << endl;
+			//cout << "Generation " << ++generation << " (Left): " << node->left->token << endl;
+			cout << outPath1 << ": " << node->left->token << " (Generation " << ++generation << ")" << endl;
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
 		}
 		//If the node is black
 		else {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray (I would do black but then you couldnt see the text against the background)
-			cout << "Generation " << ++generation << " (Left): " << node->left->token << endl;
-			//cout << outPath << ": " << node->left->token << " (Generation " << ++generation << ")" << endl;
+			//cout << "Generation " << ++generation << " (Left): " << node->left->token << endl;
+			cout << outPath1 << ": " << node->left->token << " (Generation " << ++generation << ")" << endl;
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
 		}
 
@@ -677,27 +679,28 @@ void GTree::checkChildren(GNode*& node, int generation, char* inPath) {
 		*/
 		
 		//Check the children of the left node
-		checkChildren(node->left, generation, outPath); //Check the next generation
+		checkChildren(node->left, generation, outPath1); //Check the next generation
 		generation--;
 	}
 	//If the right child isn't NULL, check both of their children
 	if (node->right != NULL) {
 		//Print out the next node's token now so that we can specify which direction that it is in relation to the current node
-		
-		strcat(outPath, "->right"); //Update dynamic path
+		outPath2 = new char[LEN];
+		strcpy(outPath2, inPath);
+		strcat(outPath2, "->right"); //Update dynamic path
 		
 		//If the node is red
 		if (node->right->isRed) {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); //Set text to red
-			cout << "Generation " << ++generation << " (Right): " << node->right->token << endl;
-			//cout << outPath << ": " << node->right->token << " (Generation " << ++generation << ")" << endl;
+			//cout << "Generation " << ++generation << " (Right): " << node->right->token << endl;
+			cout << outPath2 << ": " << node->right->token << " (Generation " << ++generation << ")" << endl;
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to white
 		}
 		//If the node is black
 		else {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray (I would do black but then you couldnt see the text against the background)
-			cout << "Generation " << ++generation << " (Right): " << node->right->token << endl;
-			//cout << outPath << ": " << node->right->token << " (Generation " << ++generation << ")" << endl;
+			//cout << "Generation " << ++generation << " (Right): " << node->right->token << endl;
+			cout << outPath2 << ": " << node->right->token << " (Generation " << ++generation << ")" << endl;
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
 		}
 		
@@ -707,11 +710,12 @@ void GTree::checkChildren(GNode*& node, int generation, char* inPath) {
 		*/
 		
 		//Check the children of the right node
-		checkChildren(node->right, generation, outPath);
+		checkChildren(node->right, generation, outPath2);
 		generation--;
 	}
 	
-	delete[] outPath; //Clear up that space once we're done here
+	delete[] outPath1; //Clear up that space once we're done here
+	delete[] outPath2; //Clear up that space once we're done here
 }
 
 void GTree::searchChildren(GNode*& node, int number) {
