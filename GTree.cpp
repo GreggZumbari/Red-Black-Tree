@@ -268,7 +268,7 @@ void GTree::printTree() {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray
 		}
 		
-		cout << "head: " << head->token << "(Generation 1)" << endl;
+		cout << "head: " << head->token << " (Generation 1)" << endl;
 		
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
 		
