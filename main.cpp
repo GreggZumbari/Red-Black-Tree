@@ -15,7 +15,7 @@ int searchFunction() - Get the user to input the number that they want to search
 void search(GTree*, int) - Print out the amount of times that the inputted number appears in the tree with some random UI stuff added in to make the info understandable.
 bool confirmInput() - Simply asks the user for a yes or no response (y/n). Purely for modularity purposes.
 
-@author Greggory Hickman, March-April 2020
+@author Greggory Hickman, March-May 2020
  */
 
 #include <iostream>
@@ -36,6 +36,7 @@ using namespace std;
 void sayProgramDescription();
 void listCommands();
 //void addToTree(GTree*, int);
+int* removeFunction();
 int* fileFunction();
 int* addFunction();
 //int* removeFunction();
@@ -64,7 +65,7 @@ int main() {
 	cout << "-----------------------------------------------------------" << endl;
 	cout << endl;
 	cout << "By Greggory Hickman" << endl;
-	cout << "Made in March and April of 2020" << endl;
+	cout << "Made in March through May of 2020" << endl;
 	cout << endl;
 	
 	cout << "Type \"help\" or \"?\" for help" << endl;
@@ -109,8 +110,15 @@ int main() {
 					haveInput = confirmInput();
 				}
 				else {
-					cout << "Input method \"" << cmdin << "\" not recognized" << endl;
+					cout << "Input method \"" << userResponse << "\" not recognized" << endl;
 				}
+			}
+			//If the user typed "remove"
+			else if (strcmp(cmdin, "remove") == 0 || strcmp(cmdin, "r") == 0 || strcmp(cmdin, "r") == 0) {
+				//Call the remove function
+				numbersToAdd = removeFunction(); //Just pretend that it says numbersToRemove
+				//Confirm the input
+				haveInput = confirmInput();
 			}
 			//If the user typed "search"
 			else if (strcmp(cmdin, "search") == 0 || strcmp(cmdin, "s") == 0 || strcmp(cmdin, "S") == 0) {
@@ -133,7 +141,7 @@ int main() {
 				break;
 			}
 			//If the user typed "help"
-			else if (strcmp(cmdin, "help") == 0 || strcmp(cmdin, "?") == 0 || /*We want to encourage good grammar here*/ strcmp(cmdin, "Help") == 0) {
+			else if (strcmp(cmdin, "help") == 0 || strcmp(cmdin, "?") == 0 || strcmp(cmdin, "h") == 0 || strcmp(cmdin, "H") == 0) {
 				//Print commands
 				listCommands();
 				break;
@@ -146,7 +154,7 @@ int main() {
 			}
 			//If the user typed an invalid command
 			else {
-				cout << "Command \"" << cmdin << "\" not recognized" << endl;
+				cout << "Command \"" << cmdin << "\" not recognized" << endl << endl;
 				break;
 			}
 			cout << endl;
@@ -161,11 +169,14 @@ int main() {
 				tree.add(numbersToAdd[i]);
 			}
 		}
-		/*
 		//If the user previously told the program to remove (a) number(s)
 		else if (strcmp(cmdin, "remove") == 0 || strcmp(cmdin, "r") == 0 || strcmp(cmdin, "R") == 0) {
-			//Sort each number into the tree one by one
+			//Remove each number from the tree one by one
 			for (int i = 0; numbersToAdd[i] > 0; i++) {
+				//Remove the i'th number in the list
+				tree.remove(numbersToAdd[i]);
+				
+				/*
 				//Set the current pointer back to the head
 				int* treeGuts = tree.flushTree();
 				//for (int i = 0; treeGuts[i] != 0; i++) cout << treeGuts[i] << ", ";
@@ -180,12 +191,36 @@ int main() {
 					}
 				}
 				cout << endl;
+				*/
 			}
 		}
-		*/
 	}
 	
 	return 0;
+}
+
+int* removeFunction() {
+	char* inputString = new char[BIGLEN];
+	
+	cout << "Reading from console..." << endl <<
+	"Enter the number you would like to remove. If you have multiple, separate them with spaces." << endl;
+	
+	//Read in the input from console and put it into inputString
+	cout << "Remove> ";
+	cin.getline(inputString, BIGLEN);
+	
+	//Parse the char* input into an int* with each number separated
+	int* numbersToAdd = parseZTCString(inputString, 32);
+	delete[] inputString;
+
+	//At this point, we have our input (inputString).
+	cout << "Input: ";
+	for (int i = 0; numbersToAdd[i] != 0; i++) {
+		cout << numbersToAdd[i] << " "; //Print all int-ified inputs
+	}
+	cout << endl;
+	
+	return numbersToAdd;
 }
 
 void sayProgramDescription() {
@@ -204,12 +239,12 @@ void listCommands() {
 	"Type \"" << UNDERLINE << "s" << STOPUNDERLINE << "earch\" to find out how many times a number appears within the tree" << endl << 
 	"Type \"" << UNDERLINE << "p" << STOPUNDERLINE << "rint\" to print out the tree into console" << endl << 
 	"Type \"a" << UNDERLINE << "b" << STOPUNDERLINE << "out\" for a short description on what this program does" << endl <<
-	"Type \"help\" or \"" << UNDERLINE << "?" << STOPUNDERLINE << "\" for help" << endl <<
+	"Type \"" << UNDERLINE << "h" << STOPUNDERLINE << "elp\" or \"?\" for help" << endl <<
 	"Type \"" << UNDERLINE << "e" << STOPUNDERLINE << "xit\" to kill the program" << endl;
 }
 
 void search(GTree* tree, int numberToSearchFor) {
-	cout << tree->numberCount(numberToSearchFor) << " instances of the number \"" << numberToSearchFor << "\" found." << endl << endl;
+	cout << tree->numberCount(numberToSearchFor) << " instances of the number \"" << numberToSearchFor << "\" found." << endl;
 	return;
 }
 
@@ -222,6 +257,8 @@ int searchFunction() {
 	//Read in the input from console and put it into inputString
 	cout << "Search> ";
 	cin.getline(inputString, BIGLEN);
+	
+	cout << endl;
 	
 	//Parse the char* input into an int* with each number separated
 	int* numberToSearchFor = parseZTCString(inputString, 32);
@@ -285,7 +322,7 @@ int* fileFunction() {
 			return numbersToAdd;
 		}
 		else {
-			cout << "There was an issue opening the file at \"" << fileBuffer << "\". (Psst! Did you forget to include the extension at the end?) Please try again..." << endl;
+			cout << "There was an issue opening the file at \"" << fileBuffer << "\". (Psst! Did you forget to include the extension at the end?)" << endl << "Please try again..." << endl;
 		}
 	}
 	fclose(fin);

@@ -101,6 +101,7 @@ void GTree::setRightToken(int value) {
 	//current->right = newNode;
 }
 
+/*
 void GTree::setLeftAddress(char* path) {
 	current->left->path = path;
 }
@@ -108,6 +109,7 @@ void GTree::setLeftAddress(char* path) {
 void GTree::setRightAddress(char* path) {
 	current->right->path = path;
 }
+*/
 
 void GTree::setLeftRed() {
 	current->left->isRed = true;
@@ -191,7 +193,7 @@ void GTree::add(int newToken) {
 				else {
 					strcat(path, "0");
 					setLeftToken(newToken); //Set the left child to be the new token
-					setLeftAddress(path); //Set the left address to be what it is
+					//setLeftAddress(path); //Set the left address to be what it is
 					moveLeft(); //Move left so that checkCases() looks at the correct node
 					
 					break;
@@ -208,7 +210,7 @@ void GTree::add(int newToken) {
 				else {
 					strcat(path, "1");
 					setRightToken(newToken); //Set the right child to be the new token
-					setRightAddress(path); //Set the right address to be what it is
+					//setRightAddress(path); //Set the right address to be what it is
 					moveRight(); //Move right so that checkCases() looks at the correct node
 					break;
 				}
@@ -224,9 +226,160 @@ void GTree::add(int newToken) {
 	return;
 }
 
+void GTree::remove(int newToken) {
+	
+	/*
+	Just a quick bit of information:
+	For the sake of efficiency, I'm going to refer to a thing's original state as _state.
+	For example, the original node before it was replaced would be called _node, and the original left child before it was replaced with something else will be referred to as _left.
+	All non-underline-prefaced things refer to what the thing is at that particular moment.
+	Okay, now onto the code! Enjoy!
+	*/
+	
+	//Find the node that we're going to delete
+	GNode* node = kidnapChild(head, newToken);
+	
+	//If the kidnapChild() function returned NULL, then that means that no instances of newToken exist within the tree
+	if (node == NULL) {
+		cout << "No instances of the number \"" << newToken << "\" were found." << endl << endl;
+		return;
+	}
+	
+	//Record node's color
+	bool wasRed = isRed(node);
+	//Record the new node
+	GNode* replacement = NULL;
+	
+	//Go through initial steps
+	
+	//Initial step 1
+	cout << "- Initial Step 1 -" << endl;
+	//If node has 2 NULL children
+	//Replace node with a NULL leaf
+	if (getLeft(node) == NULL && getRight(node) == NULL) {
+		cout << "- 0 Children -" << endl;
+		//If node is a left child
+		if (isLeft(node)) {
+			getParent(node, 1)->left = NULL;
+		}
+		//If node is a right child
+		else {
+			getParent(node, 1)->right = NULL;
+		}
+	}
+	
+	//If node has only 1 NULL child
+	//Replace node with the non-NULL child
+	else if (getLeft(node) == NULL || getRight(node) == NULL) {
+		cout << "- 1 Child -" << endl;
+		//If the non-aborted child is the left child
+		if (getLeft(node) != NULL) {
+			//If node is a left child
+			if (isLeft(node)) {
+				//Replace node with _left
+				replacement = node->left;
+				getParent(node, 1)->left = replacement;
+			}
+			//If node is a right child
+			else {
+				//Replace node with _left
+				replacement = node->left;
+				getParent(node, 1)->right = replacement;
+			}
+		}
+		//If the non-aborted child is the right child
+		else {
+			//If node is a left child
+			if (isLeft(node)) {
+				//Replace node with _right
+				replacement = node->right;
+				getParent(node, 1)->left = replacement;
+			}
+			//If node is a right child
+			else {
+				//Replace node with _right
+				replacement = node->right;
+				getParent(node, 1)->right = replacement;
+			}
+		}
+	}
+	
+	//If node has 2 non-NULL children
+	//Replace node with the right child's left child, or, if the right child doesn't have a left child, just replace node with the right child, then put the left child back in place
+	else {
+		cout << "- 2 Children -" << endl;
+		//Keep track of the children's addresses because we are going to need them in a moment here
+		GNode* _left = node->left;
+		GNode* _right = node->right;
+		GNode* _rightleft = node->right->left;
+		
+		//If node's right child has no left child
+		if (node->right->left == NULL) {
+			//If node is a left child
+			if (isLeft(node)) {
+				//Replace node with _right
+				replacement = _right;
+				getParent(node, 1)->left = replacement;
+			}
+			//If node is a right child
+			else {
+				//Replace node with _right
+				replacement = _right;
+				getParent(node, 1)->right = replacement;
+			}
+			//Stick _left back on to node
+			_right->left = _left;
+		}
+		//If node's right child has a left child
+		else {
+			//If node is a left child
+			if (isLeft(node)) {
+				//Replace node with _rightleft
+				replacement = _rightleft;
+				getParent(node, 1)->left = replacement;
+			}
+			//If node is a right child
+			else {
+				//Replace node with _rightleft
+				replacement = _rightleft;
+				getParent(node, 1)->right = replacement;
+			}
+			
+			//Force _right to disown its left child (node->right->left) to avoid turning the tree into a black hole
+			_right->left = NULL;
+			
+			//Stick _left and _right back onto node
+			_rightleft->left = _left;
+			_rightleft->right = _right;
+			
+		}
+	}
+	
+	cout << endl;
+	
+	//Initial step 2
+	cout << "- Initial Step 2 -" << endl;
+	
+	//If _node was red and replacement is black but not NULL
+	if (wasRed &&
+	replacement != NULL &&
+	isBlack(replacement)) {
+		
+	}
+	
+	//Go through cases
+	
+	//Case 1
+	//Case 2
+	//Case 3
+	//Case 4
+	//Case 5
+	//Done!
+}
+
 void GTree::printTree() {
 	/*
-	All colors pulled from the c++ api for reference
+	All color ids pulled from the c++ api for reference
 
 	0   BLACK
 	1   BLUE
@@ -313,6 +466,7 @@ int GTree::numberCount(int value) {
 	return count;
 }
 
+/*
 int* GTree::flushTree() {
 	count = 0;
 	//We are going to use the class variable "treeGuts" to store our tokens after the tree is completely emptied
@@ -332,6 +486,7 @@ int* GTree::flushTree() {
 	//Return the complete list of tokens that we recorded along the way
 	return treeGuts;
 }	
+*/
 
 //Private functions only after this point
 
@@ -396,6 +551,16 @@ void GTree::setRight(GNode* node) {
 		node->parent = current;
 	}
 }
+
+/*
+void GTree::rotateLeft(GNode* node) {
+	
+}
+		
+void GTree::rotateRight(GNode* node) {
+	
+}
+*/
 
 GTree::GNode* GTree::getLeft(GNode* node) {
 	return node->left;
@@ -465,6 +630,10 @@ GTree::GNode* GTree::getUncle(GNode* node) {
 }
 
 //Recursives only after this point
+
+void GTree::checkCasesRemove(GNode* node, bool wasRed) {
+	
+}
 
 void GTree::checkCases(GNode* node) {
 	//Case 5: If uncle is black, parent and node are both red, parent is left, and node is left. Or, if uncle is black, parent and node are both red, parent is right, and node is right
@@ -736,6 +905,29 @@ void GTree::searchChildren(GNode*& node, int number) {
 	}
 }
 
+GTree::GNode* GTree::kidnapChild(GNode*& node, int number) {
+	//This is the variable that the GNode that we want is going to travel back up the recursion in
+	GNode* childToKidnap = NULL;
+	//If the current token is the number that we're searching for...
+	//cout << "Node token: " << node->token << ", Number: " << number << endl;
+	if (childToKidnap == NULL && node->token == number) {
+		//...send it back up to the top of the recursive function!
+		return node;
+	}
+	//If the left child isn't NULL, and we haven't found our child yet, check both of their children
+	if (childToKidnap == NULL && node->left != NULL) {
+		//Check the children of the left node
+		childToKidnap = kidnapChild(node->left, number); //Check the next generation
+	}
+	//If the right child isn't NULL, and we haven't found our child yet, check both of their children
+	if (childToKidnap == NULL && node->right != NULL) {
+		//Check the children of the right node
+		childToKidnap = kidnapChild(node->right, number);
+	}
+	return childToKidnap;
+}
+
+/*
 void GTree::flushChildren(GNode*& node) {
 	//If the left child isn't NULL, check both of their children
 	if (node->left != NULL) {
@@ -756,9 +948,9 @@ void GTree::flushChildren(GNode*& node) {
 		flushChildren(node->right);
 	}
 	
-	delete[] node->path;
 	delete[] node; //Down the toilet this node goes!
 }
+*/
 
 /*
 void GTree::updateParentPointers(GNode*& node) {
