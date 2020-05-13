@@ -314,11 +314,8 @@ void GTree::remove(int newToken) {
 		cout << "- 2 Children -" << endl;
 		//Keep track of the children's addresses because we are going to need them in a moment here
 		GNode* _left = node->left;
-		cout << "_left: " << _left->token << endl;
 		GNode* _right = node->right;
-		cout << "_right: " << _right->token << endl;
 		GNode* _rightleft = node->right->left;
-		cout << "_rightleft: " << _rightleft->token << endl;
 		
 		//If node's right child has no left child
 		if (node->right->left == NULL) {
@@ -376,21 +373,28 @@ void GTree::remove(int newToken) {
 	if (wasRed &&
 	replacement != NULL &&
 	isBlack(replacement)) {
-		cout << "-Node is red, rep is black-" << endl;
+		cout << "- Node is red, rep is black -" << endl;
 		//Change rep. to red
 		invertColor(replacement);
 		//Proceed to cases
-		checkCases(replacement);
+		checkCasesRemove(replacement);
 	}
 	
-	//Go through cases
+	//If _node was black and replacement is red
+	//Color replacement black, and then we are done
+	if (!wasRed &&
+	isRed(replacement)) {
+		cout << "- Node is black, rep is red -" << endl;
+		//Change rep. to red
+		invertColor(replacement);
+	}
 	
-	//Case 1
-	//Case 2
-	//Case 3
-	//Case 4
-	//Case 5
-	//Done!
+	//If _node was black and replacement is NULL or black (my isBlack() function returns true for NULL nodes as well as non-NULL black nodes)
+	//Do nothing, and proceed to cases
+	if (!wasRed &&
+	isBlack(replacement)) {
+		checkCasesRemove(replacement);
+	}
 }
 
 void GTree::printTree() {
@@ -648,7 +652,63 @@ GTree::GNode* GTree::getUncle(GNode* node) {
 //Recursives only after this point
 
 void GTree::checkCasesRemove(GNode* node) {
-	cout << "Cases yink yoink" << endl;
+	cout << "- Cases yink yoink -" << endl;
+	//Go through cases
+	
+	//Case 1: Node is red
+	if (isRed(node)) {
+		//Color node black. We are done.
+		cout << "- Case 1 -" << endl;
+		setBlack(node);
+	}
+	
+	//Case 2: Node is black and sibling is red
+	if (isBlack(node) && 
+	isRed(getSibling(node))) {
+		cout << "- Case 2 -" << endl;
+	}
+	
+	//Case 3: Node is black and sibling is black and both of sibling's children are black
+	if (isBlack(node) && 
+	isBlack(getSibling(node)) && 
+	isBlack(getLeft(getSibling(node))) && 
+	isBlack(getRight(getSibling(node))) {
+		cout << "- Case 3 -" << endl;
+	}
+	
+	//Case 4: Node is black and its sibling is black and...
+	if (isBlack(node) && 
+	isBlack(getSibling(node))) {
+		//If node is the left child, sibling's left child is red and sibling's right child is black
+		if (isLeft(node) && 
+		isRed(getLeft(getSibling(node))) && 
+		isBlack(getRight(getSibling(node)))) {
+			cout << "- Case 4L -" << endl;
+		}
+		//If node is the right child, sibling's right child is red and sibling's left child is black
+		if (isRight(node) && 
+		isRed(getRight(getSibling(node))) && 
+		isBlack(getLeft(getSibling(node)))) {
+			cout << "- Case 4R -" << endl;
+		}
+	}
+	
+	//Case 5: Node is black and its sibling is black and...
+	if (isBlack(node) && 
+	isBlack(getSibling(node))) {
+		//If node is the left child, sibling's right child is red
+		if (isLeft(node) && 
+		isRed(getRight(getSibling(node)))) {
+			cout << "- Case 5L -" << endl;
+		}
+		//If node is the right child, sibling's left child is red
+		if (isRight(node) && 
+		isRed(getLeft(getSibling(node)))) {
+			cout << "- Case 5R -" << endl;
+		}
+	}
+	
+	//Done!
 }
 
 void GTree::checkCases(GNode* node) {
@@ -994,7 +1054,7 @@ void GTree::updateParentPointers(GNode*& node) {
 void GTree::fillTreeGuts(GNode*& node) {
 	//If the left child isn't NULL, check both of their children
 	if (node->left != NULL) {
-		//Record the current token
+		//Notices you're black owo
 		pureTreeGuts[count] = node->left;
 		count++;
 		
