@@ -141,7 +141,7 @@ class GTree {
 		GNode* getUncle(GNode*);
 		
 		//Recursive functions which are also private
-		void checkCasesRemove(GNode*, bool);
+		void checkCasesRemove(GNode*);
 		void checkCases(GNode*);
 		void checkChildren(GNode*&, int, char*);
 		void searchChildren(GNode*&, int);

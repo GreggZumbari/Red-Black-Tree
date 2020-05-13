@@ -253,7 +253,7 @@ void GTree::remove(int newToken) {
 	//Go through initial steps
 	
 	//Initial step 1
-	cout << "- Initial Step 1 -" << endl;
+	cout << "- Initial Step 1 -" << endl << endl;
 	//If node has 2 NULL children
 	//Replace node with a NULL leaf
 	if (getLeft(node) == NULL && getRight(node) == NULL) {
@@ -278,13 +278,15 @@ void GTree::remove(int newToken) {
 			if (isLeft(node)) {
 				//Replace node with _left
 				replacement = node->left;
-				getParent(node, 1)->left = replacement;
+				current = getParent(node, 1);
+				setLeft(replacement);
 			}
 			//If node is a right child
 			else {
 				//Replace node with _left
 				replacement = node->left;
-				getParent(node, 1)->right = replacement;
+				current = getParent(node, 1);
+				setRight(replacement);
 			}
 		}
 		//If the non-aborted child is the right child
@@ -293,13 +295,15 @@ void GTree::remove(int newToken) {
 			if (isLeft(node)) {
 				//Replace node with _right
 				replacement = node->right;
-				getParent(node, 1)->left = replacement;
+				current = getParent(node, 1);
+				setLeft(replacement);
 			}
 			//If node is a right child
 			else {
 				//Replace node with _right
 				replacement = node->right;
-				getParent(node, 1)->right = replacement;
+				current = getParent(node, 1);
+				setRight(replacement);
 			}
 		}
 	}
@@ -310,8 +314,11 @@ void GTree::remove(int newToken) {
 		cout << "- 2 Children -" << endl;
 		//Keep track of the children's addresses because we are going to need them in a moment here
 		GNode* _left = node->left;
+		cout << "_left: " << _left->token << endl;
 		GNode* _right = node->right;
+		cout << "_right: " << _right->token << endl;
 		GNode* _rightleft = node->right->left;
+		cout << "_rightleft: " << _rightleft->token << endl;
 		
 		//If node's right child has no left child
 		if (node->right->left == NULL) {
@@ -319,13 +326,15 @@ void GTree::remove(int newToken) {
 			if (isLeft(node)) {
 				//Replace node with _right
 				replacement = _right;
-				getParent(node, 1)->left = replacement;
+				current = getParent(node, 1);
+				setLeft(replacement);
 			}
 			//If node is a right child
 			else {
 				//Replace node with _right
 				replacement = _right;
-				getParent(node, 1)->right = replacement;
+				current = getParent(node, 1);
+				setRight(replacement);
 			}
 			//Stick _left back on to node
 			_right->left = _left;
@@ -336,13 +345,15 @@ void GTree::remove(int newToken) {
 			if (isLeft(node)) {
 				//Replace node with _rightleft
 				replacement = _rightleft;
-				getParent(node, 1)->left = replacement;
+				current = getParent(node, 1);
+				setLeft(replacement);
 			}
 			//If node is a right child
 			else {
 				//Replace node with _rightleft
 				replacement = _rightleft;
-				getParent(node, 1)->right = replacement;
+				current = getParent(node, 1);
+				setRight(replacement);
 			}
 			
 			//Force _right to disown its left child (node->right->left) to avoid turning the tree into a black hole
@@ -358,13 +369,18 @@ void GTree::remove(int newToken) {
 	cout << endl;
 	
 	//Initial step 2
-	cout << "- Initial Step 2 -" << endl;
+	cout << "- Initial Step 2 -" << endl << endl;
 	
 	//If _node was red and replacement is black but not NULL
+	//Color replacement red, and proceed to cases
 	if (wasRed &&
 	replacement != NULL &&
 	isBlack(replacement)) {
-		
+		cout << "-Node is red, rep is black-" << endl;
+		//Change rep. to red
+		invertColor(replacement);
+		//Proceed to cases
+		checkCases(replacement);
 	}
 	
 	//Go through cases
@@ -631,8 +647,8 @@ GTree::GNode* GTree::getUncle(GNode* node) {
 
 //Recursives only after this point
 
-void GTree::checkCasesRemove(GNode* node, bool wasRed) {
-	
+void GTree::checkCasesRemove(GNode* node) {
+	cout << "Cases yink yoink" << endl;
 }
 
 void GTree::checkCases(GNode* node) {
