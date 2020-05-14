@@ -1,6 +1,8 @@
 //GTree.cpp
 #include "GTree.h"
 
+#define RED 0x1b[1;31m0
+
 //GNode Constructor
 
 //Constructor
@@ -368,6 +370,16 @@ void GTree::remove(int newToken) {
 	//Initial step 2
 	cout << "- Initial Step 2 -" << endl << endl;
 	
+	//If _node was red and replacement is red or NULL
+	//We are done
+	if (wasRed &&
+	(replacement == NULL ||
+	isRed(replacement))) {
+		cout << "- Node is red, rep is red/NULL -" << endl;
+		//We are done
+		return;
+	}
+	
 	//If _node was red and replacement is black but not NULL
 	//Color replacement red, and proceed to cases
 	if (wasRed &&
@@ -385,19 +397,30 @@ void GTree::remove(int newToken) {
 	if (!wasRed &&
 	isRed(replacement)) {
 		cout << "- Node is black, rep is red -" << endl;
-		//Change rep. to red
+		//Change rep. to black
 		invertColor(replacement);
+		//We are done
+		return;
 	}
 	
 	//If _node was black and replacement is NULL or black (my isBlack() function returns true for NULL nodes as well as non-NULL black nodes)
 	//Do nothing, and proceed to cases
 	if (!wasRed &&
 	isBlack(replacement)) {
+		//Proceed to cases
 		checkCasesRemove(replacement);
 	}
 }
 
 void GTree::printTree() {
+	
+	/*
+	//Credit to Fedele for showing how to do colored text on https://stackoverflow.com/questions/24281603/c-underline-output
+	char normal[] = {0x1b,'[','0',';','3','9','m',0};
+	char red[] = {0x1b,'[','0',';','3','1','m',0}
+	char black[] = {0x1b,'[','0',';','3','8','m',0};
+	*/
+	
 	/*
 	All color ids pulled from the c++ api for reference
 
@@ -672,7 +695,7 @@ void GTree::checkCasesRemove(GNode* node) {
 	if (isBlack(node) && 
 	isBlack(getSibling(node)) && 
 	isBlack(getLeft(getSibling(node))) && 
-	isBlack(getRight(getSibling(node))) {
+	isBlack(getRight(getSibling(node)))) {
 		cout << "- Case 3 -" << endl;
 	}
 	
