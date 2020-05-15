@@ -134,6 +134,8 @@ class GTree {
 		void setRight(GNode*);
 		//void rotateLeft(GNode*);
 		//void rotateRight(GNode*);
+		void rotateLeft(GNode*);
+		void rotateRight(GNode*);
 		GNode* getLeft(GNode*);
 		GNode* getRight(GNode*);
 		GNode* getParent(GNode*, int);

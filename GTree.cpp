@@ -407,6 +407,7 @@ void GTree::remove(int newToken) {
 	//Do nothing, and proceed to cases
 	if (!wasRed &&
 	isBlack(replacement)) {
+		cout << "- Node is black, rep is black/NULL -" << endl;
 		//Proceed to cases
 		checkCasesRemove(replacement);
 	}
@@ -595,15 +596,99 @@ void GTree::setRight(GNode* node) {
 	}
 }
 
-/*
-void GTree::rotateLeft(GNode* node) {
-	
+void GTree::rotateLeft(GNode* _parent) {
+	//If parent is a left child
+	if (isLeft(_parent)) {
+		//Create a temporary variable to hold all of the addresses
+		GNode* _node = _parent->right;
+		GNode* _rightleft = _parent->right->left;
+		
+		current = _parent; //Set current to point at parent
+		setRight(_rightleft); //Set parent's right child to node's left child, replacing node
+		
+		current = getParent(_parent, 1); //Get grandparent
+		setLeft(_node); //Set grandparent's left child to node, replacing parent
+		
+		current = _node;
+		setLeft(_parent); //Set node's left child to parent, replacing node's old left child
+	}
+	//If parent is a right child
+	else if (isRight(_parent)) {
+		//Create a temporary variable to hold all of the addresses
+		GNode* _node = _parent->right;
+		GNode* _rightleft = _parent->right->left;
+		
+		current = _parent; //Set current to point at parent
+		setRight(_rightleft); //Set parent's right child to node's left child, replacing node
+		
+		current = getParent(_parent, 1); //Get grandparent
+		setRight(_node); //Set grandparent's right child to node, replacing parent
+		
+		current = _node;
+		setLeft(_parent); //Set node's left child to parent, replacing node's old left child
+	}
+	//If parent is head
+	else {
+		//Create a temporary variable to hold all of the addresses
+		GNode* _node = _parent->right;
+		GNode* _rightleft = _parent->right->left;
+		
+		current = _parent; //Set current to point at parent
+		setRight(_rightleft); //Set parent's right child to node's left child, replacing node
+		
+		head = _node; //Set grandparent's right child to node, replacing parent
+		
+		current = _node;
+		setLeft(_parent); //Set node's left child to parent, replacing node's old left child
+	}
 }
 		
-void GTree::rotateRight(GNode* node) {
-	
+void GTree::rotateRight(GNode* _parent) {
+	//If parent is a left child
+	if (isLeft(_parent)) {
+		//Create a temporary variable to hold all of the addresses
+		GNode* _node = _parent->left;
+		GNode* _leftright = _parent->left->right;
+		
+		current = _parent; //Set current to point at parent
+		setLeft(_leftright); //Set parent's left child to node's right child, replacing node
+		
+		current = getParent(_parent, 1); //Get grandparent
+		setLeft(_node); //Set grandparent's left child to node, replacing parent
+		
+		current = _node; //Set current to point at node
+		setRight(_parent); //Set node's right child to parent, replacing node's old right child
+	}
+	//If parent is a right child
+	else if (isRight(_parent)) {
+		//Create a temporary variable to hold all of the addresses
+		GNode* _node = _parent->left;
+		GNode* _leftright = _parent->left->right;
+		
+		current = _parent; //Set current to point at parent
+		setLeft(_leftright); //Set parent's left child to node's right child, replacing node
+		
+		current = getParent(_parent, 1); //Get grandparent
+		setLeft(_node); //Set grandparent's left child to node, replacing parent
+		
+		current = _node; //Set current to point at node
+		setRight(_parent); //Set node's right child to parent, replacing node's old right child
+	}
+	//If parent is head
+	else {
+		//Create a temporary variable to hold all of the addresses
+		GNode* _node = _parent->left;
+		GNode* _leftright = _parent->left->right;
+		
+		current = _parent; //Set current to point at parent
+		setLeft(_leftright); //Set parent's left child to node's right child, replacing node
+		
+		head = _node; //Set grandparent's left child to node, replacing parent
+		
+		current = _node; //Set current to point at node
+		setRight(_parent); //Set node's right child to parent, replacing node's old right child
+	}
 }
-*/
 
 GTree::GNode* GTree::getLeft(GNode* node) {
 	return node->left;
@@ -675,17 +760,24 @@ GTree::GNode* GTree::getUncle(GNode* node) {
 //Recursives only after this point
 
 void GTree::checkCasesRemove(GNode* node) {
-	cout << "- Cases yink yoink -" << endl;
+	cout << "- Cases yink yoink -" << endl << endl;
 	//Go through cases
 	
 	//Case 1: Node is red
+	//Color node black. We are done.
 	if (isRed(node)) {
-		//Color node black. We are done.
 		cout << "- Case 1 -" << endl;
+		//Color node black
 		setBlack(node);
+		//We are done
+		return;
 	}
 	
 	//Case 2: Node is black and sibling is red
+	//Color sibling black 
+	//Then color parent red
+	//Then rotate parent (if node is a left child, rotate parent left, vice versa for right) 
+	//Then continue on with the rest of the cases
 	if (isBlack(node) && 
 	isRed(getSibling(node))) {
 		cout << "- Case 2 -" << endl;
@@ -735,8 +827,6 @@ void GTree::checkCasesRemove(GNode* node) {
 }
 
 void GTree::checkCases(GNode* node) {
-	//Case 5: If uncle is black, parent and node are both red, parent is left, and node is left. Or, if uncle is black, parent and node are both red, parent is right, and node is right
-	//Rotate through grandparent, then switch the old parent and old grandparent's colors
 	//printTree();
 	
 	/*
@@ -752,7 +842,7 @@ void GTree::checkCases(GNode* node) {
 	//printTree();
 	
 	//Case 3: If parent and uncle are both red (and also grandpa is black)
-	//Make parent and uncle black and grandpa red, then, run through all 5 cases on the grandparent
+	//Make parent and uncle black and grandpa red, then, run through all 5 cases again on the grandparent
 	if (isRed(getParent(node, 1)) && isRed(getUncle(node))) {
 		setBlack(getParent(node, 1)); //Set parent black
 		setBlack(getUncle(node)); //Set uncle black
@@ -776,7 +866,10 @@ void GTree::checkCases(GNode* node) {
 	isRed(node) &&
 	(getParent(node, 1) == NULL || isLeft(getParent(node, 1))) && /* If parent is NULL, it will return false for left always */
 	isRight(node)) {
+		
 		GNode* _parent = getParent(node, 1); //Create a temporary variable to hold parent's address
+		rotateLeft(_parent);
+		/*
 		current = _parent; //Set current to point at parent
 		setRight(getLeft(node)); //Set parent's right child to node's left child, replacing node
 		
@@ -785,6 +878,7 @@ void GTree::checkCases(GNode* node) {
 		
 		current = node;
 		setLeft(_parent); //Set node's left child to parent, replacing node's old left child
+		*/
 		
 		//Update all parent pointers to be correct
 		//node->parent = _parent->parent; //Set node's parent to grandparent
@@ -799,7 +893,11 @@ void GTree::checkCases(GNode* node) {
 	isRed(node) &&
 	(isRight(getParent(node, 1)) || getParent(node, 1) == NULL) && 
 	isLeft(node)) {
+		
 		GNode* _parent = getParent(node, 1); //Create a temporary variable to hold parent's address
+		rotateRight(_parent);
+		
+		/*
 		current = _parent; //Set current to point at parent
 		setLeft(getRight(node)); //Set parent's left child to node's right child, replacing node
 		
@@ -812,6 +910,7 @@ void GTree::checkCases(GNode* node) {
 		//Update all parent pointers to be correct
 		//node->parent = _parent->parent; //Set node's parent to grandparent
 		//_parent->parent = node; //Set parent's parent to node
+		*/
 		
 		node = _parent; //Parent is now the bottom-most node, thus, it should be treated as the new "node" now
 		
@@ -831,7 +930,10 @@ void GTree::checkCases(GNode* node) {
 	isLeft(node)) {
 		GNode* _parent = getParent(node, 1); //Create a temporary pointer to the parent (also for convenience and efficiency)
 		GNode* _grandparent = getParent(node, 2); //Create a temporary pointer to the grandparent (WE REALLY NEED THIS POINTER!! DON'T REMOVE IT UNLESS ITS AN EMERGENCY!!!!)
+
+		rotateRight(_grandparent);
 		
+		/*
 		//If grandparent is a left child
 		if (isLeft(_grandparent)) {
 			current = getParent(_grandparent, 1); //Set current to ancestor
@@ -852,6 +954,7 @@ void GTree::checkCases(GNode* node) {
 		
 		current = _parent; //Set current to parent
 		setRight(_grandparent); //Set parent's right child to be grandparent
+		*/
 		
 		//Swap the colors of grandparent and parent
 		bool isGrandpaRed = isRed(_grandparent);
@@ -871,6 +974,9 @@ void GTree::checkCases(GNode* node) {
 		GNode* _parent = getParent(node, 1); //Create a temporary pointer to the parent (also for convenience and efficiency)
 		GNode* _grandparent = getParent(node, 2); //Create a temporary pointer to the grandparent (WE REALLY NEED THIS POINTER!! DON'T REMOVE IT UNLESS ITS AN EMERGENCY!!!!)
 		
+		rotateLeft(_grandparent);
+		
+		/*
 		//If grandparent is a left child
 		if (isLeft(_grandparent)) {
 			current = getParent(_grandparent, 1); //Set current to ancestor
@@ -891,6 +997,7 @@ void GTree::checkCases(GNode* node) {
 		
 		current = _parent; //Set current to parent
 		setLeft(_grandparent); //Set parent's left child to be grandparent
+		*/
 		
 		//Swap the colors of grandparent and parent
 		bool isGrandpaRed = isRed(_grandparent);
