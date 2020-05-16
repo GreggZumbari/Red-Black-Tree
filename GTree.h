@@ -123,6 +123,7 @@ class GTree {
 		};
 		
 		//Private functions
+		bool isHead(GNode*);
 		bool isLeft(GNode*);
 		bool isRight(GNode*);
 		bool isRed(GNode*);

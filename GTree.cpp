@@ -229,7 +229,6 @@ void GTree::add(int newToken) {
 }
 
 void GTree::remove(int newToken) {
-	
 	/*
 	Just a quick bit of information:
 	For the sake of efficiency, I'm going to refer to a thing's original state as _state.
@@ -240,6 +239,11 @@ void GTree::remove(int newToken) {
 	
 	//Find the node that we're going to delete
 	GNode* node = kidnapChild(head, newToken);
+	
+	//Is the node to remove the head????
+	if (isHead(node)) {
+		cout << "- Node is Head! -" << endl << endl;
+	}
 	
 	//If the kidnapChild() function returned NULL, then that means that no instances of newToken exist within the tree
 	if (node == NULL) {
@@ -261,7 +265,10 @@ void GTree::remove(int newToken) {
 	if (getLeft(node) == NULL && getRight(node) == NULL) {
 		cout << "- 0 Children -" << endl;
 		//If node is a left child
-		if (isLeft(node)) {
+		if (isHead(node)) {
+			head = NULL;
+		}
+		else if (isLeft(node)) {
 			getParent(node, 1)->left = NULL;
 		}
 		//If node is a right child
@@ -276,8 +283,14 @@ void GTree::remove(int newToken) {
 		cout << "- 1 Child -" << endl;
 		//If the non-aborted child is the left child
 		if (getLeft(node) != NULL) {
+			//If node is the head
+			if (isHead(node)) {
+				//Replace node with _left
+				replacement = node->left;
+				head = replacement;
+			}
 			//If node is a left child
-			if (isLeft(node)) {
+			else if (isLeft(node)) {
 				//Replace node with _left
 				replacement = node->left;
 				current = getParent(node, 1);
@@ -293,8 +306,14 @@ void GTree::remove(int newToken) {
 		}
 		//If the non-aborted child is the right child
 		else {
+			//If node is the head
+			if (isHead(node)) {
+				//Replace node with _right
+				replacement = node->right;
+				head = replacement;
+			}
 			//If node is a left child
-			if (isLeft(node)) {
+			else if (isLeft(node)) {
 				//Replace node with _right
 				replacement = node->right;
 				current = getParent(node, 1);
@@ -321,8 +340,14 @@ void GTree::remove(int newToken) {
 		
 		//If node's right child has no left child
 		if (node->right->left == NULL) {
+			//If node is the head
+			if (isHead(node)) {
+				//Replace node with _right
+				replacement = _right;
+				head = replacement;
+			}
 			//If node is a left child
-			if (isLeft(node)) {
+			else if (isLeft(node)) {
 				//Replace node with _right
 				replacement = _right;
 				current = getParent(node, 1);
@@ -340,8 +365,14 @@ void GTree::remove(int newToken) {
 		}
 		//If node's right child has a left child
 		else {
+			//If node is the head
+			if (isHead(node)) {
+				//Replace node with _rightleft
+				replacement = _rightleft;
+				head = replacement;
+			}
 			//If node is a left child
-			if (isLeft(node)) {
+			else if (isLeft(node)) {
 				//Replace node with _rightleft
 				replacement = _rightleft;
 				current = getParent(node, 1);
@@ -533,6 +564,13 @@ int* GTree::flushTree() {
 */
 
 //Private functions only after this point
+
+bool GTree::isHead(GNode* node) {
+	//If node is the head return true
+	if (node == head) return true;
+	//Otherwise return false
+	return false;
+}
 
 bool GTree::isLeft(GNode* node) {
 	//If node is NULL return false
@@ -774,57 +812,153 @@ void GTree::checkCasesRemove(GNode* node) {
 	}
 	
 	//Case 2: Node is black and sibling is red
-	//Color sibling black 
-	//Then color parent red
-	//Then rotate parent (if node is a left child, rotate parent left, vice versa for right) 
+	//Color _sibling black 
+	//Then color _parent red
+	//Then rotate _parent (if node is a left child, rotate parent left, vice versa for right) 
 	//Then continue on with the rest of the cases
 	if (isBlack(node) && 
 	isRed(getSibling(node))) {
 		cout << "- Case 2 -" << endl;
+		//Color sibling black
+		setBlack(getSibling(node));
+		//Color parent red
+		setRed(getParent(node, 1));
+		//Rotate through parent
+		if (isLeft(node)) {
+			//If node is left, rotate parent left
+			rotateLeft(getParent(node, 1));
+		}
+		else if (isRight(node)) {
+			//If node is right, rotate parent right
+			rotateLeft(getParent(node, 1));
+		}
 	}
 	
 	//Case 3: Node is black and sibling is black and both of sibling's children are black
+	//Color _sibling red
+	//Set node to _parent
+	//If new node is red, color node black, and then we are done
+	//If new node is black, run all cases on it *again*
 	if (isBlack(node) && 
 	isBlack(getSibling(node)) && 
 	isBlack(getLeft(getSibling(node))) && 
 	isBlack(getRight(getSibling(node)))) {
 		cout << "- Case 3 -" << endl;
+		//Set sibling red
+		setRed(getSibling(node));
+		//Set node to _parent
+		node = getParent(node, 1);
+		//If node is red
+		if (isRed(node)) {
+			//Color node black
+			setBlack(node);
+			//We are done
+			return;
+		}
+		//If node is black
+		else {
+			//Check Cases 2: Electric Boogaloo
+			checkCasesRemove(node);
+			//Return so that we don't run cases 4 and 5 on node again
+			return;
+		}
 	}
 	
 	//Case 4: Node is black and its sibling is black and...
 	if (isBlack(node) && 
 	isBlack(getSibling(node))) {
+		GNode* _sibling = getSibling(node); //Yay, efficiency!
+		
 		//If node is the left child, sibling's left child is red and sibling's right child is black
+		//Color sibling's left child black
+		//Color sibling red
+		//Rotate right through sibling
+		//Proceed to case 5
 		if (isLeft(node) && 
 		isRed(getLeft(getSibling(node))) && 
 		isBlack(getRight(getSibling(node)))) {
 			cout << "- Case 4L -" << endl;
+			//Color sib's left child black
+			setBlack(getLeft(_sibling));
+			//Color sib red
+			setRed(_sibling);
+			//Rotate right through sib
+			rotateRight(_sibling);
+			//Proceed to case 5
 		}
+		
 		//If node is the right child, sibling's right child is red and sibling's left child is black
-		if (isRight(node) && 
+		//Color sibling's right child black
+		//Color sibling red
+		//Rotate left through sibling
+		//Proceed to case 5
+		else if (isRight(node) && 
 		isRed(getRight(getSibling(node))) && 
 		isBlack(getLeft(getSibling(node)))) {
 			cout << "- Case 4R -" << endl;
+			//Color sib's right child black
+			setBlack(getRight(_sibling));
+			//Color sib red
+			setRed(_sibling);
+			//Rotate left through sib
+			rotateLeft(_sibling);
+			//Proceed to case 5
 		}
 	}
 	
 	//Case 5: Node is black and its sibling is black and...
-	if (isBlack(node) && 
+	if (isBlack(node) &&
 	isBlack(getSibling(node))) {
-		//If node is the left child, sibling's right child is red
+		GNode* _sibling = getSibling(node);
+		GNode* _parent = getParent(node, 1);
+		
+		//If node is the left child and sibling's right child is red
+		//Color _sibling to be the same color as _parent
+		//Color _parent black
+		//Color _sibling's right child black
+		//Rotate left through parent
+		//We are done
 		if (isLeft(node) && 
 		isRed(getRight(getSibling(node)))) {
 			cout << "- Case 5L -" << endl;
+			//Color sibling to be the same color as parent
+			_sibling->isRed = _parent->isRed;
+			//Color parent black
+			setBlack(_parent);
+			//Color _sibling's right child black
+			setBlack(getRight(_sibling));
+			//Rotate left through padre
+			rotateLeft(_parent);
+			//We are done!!!! Booyah
+			return;
 		}
-		//If node is the right child, sibling's left child is red
+		
+		//If node is the right child and sibling's left child is red
+		//Color _sibling to be the same color as _parent
+		//Color _parent black
+		//Color _sibling's left child black
+		//Rotate right through parent
+		//We are done
 		if (isRight(node) && 
 		isRed(getLeft(getSibling(node)))) {
 			cout << "- Case 5R -" << endl;
+			//Color sibling to be the same color as parent
+			_sibling->isRed = _parent->isRed;
+			//Color parent black
+			setBlack(_parent);
+			//Color _sibling's left child black
+			setBlack(getLeft(_sibling));
+			//Rotate right through padre
+			rotateRight(_parent);
+			//We are done!!!! Booyah
+			return;
 		}
 	}
 	
 	//Done!
+	return;
 }
+	
 
 void GTree::checkCases(GNode* node) {
 	//printTree();
