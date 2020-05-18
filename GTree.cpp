@@ -1,7 +1,32 @@
 //GTree.cpp
 #include "GTree.h"
 
-#define RED 0x1b[1;31m0
+/*
+ Note: I'm not sure what BG or FG stand for, but we want BG.
+ 
+ Name            BG  FG
+ Black           30  40
+ Red             31  41
+ Green           32  42
+ Yellow          33  43
+ Blue            34  44
+ Magenta         35  45
+ Cyan            36  46
+ White           37  47
+ Bright Black    90  100
+ Bright Red      91  101
+ Bright Green    92  102
+ Bright Yellow   93  103
+ Bright Blue     94  104
+ Bright Magenta  95  105
+ Bright Cyan     96  106
+ Bright White    97  107
+*/
+
+#define RED "\033[91m"
+#define BLACK "\033[90m"
+//#define BLACK "\033[3;47;30m"
+#define NORMAL "\033[0m"
 
 //GNode Constructor
 
@@ -15,7 +40,6 @@ GTree::GTree() {
 GTree::~GTree() {
 	delete[] head;
 	delete[] current;
-	delete[] treeGuts;
 }
 
 int GTree::getCurrentToken() {
@@ -342,12 +366,14 @@ void GTree::remove(int newToken) {
 		if (node->right->left == NULL) {
 			//If node is the head
 			if (isHead(node)) {
+                cout << "- 2 Children A -" << endl;
 				//Replace node with _right
 				replacement = _right;
 				head = replacement;
 			}
 			//If node is a left child
 			else if (isLeft(node)) {
+                cout << "- 2 Children B -" << endl;
 				//Replace node with _right
 				replacement = _right;
 				current = getParent(node, 1);
@@ -355,6 +381,7 @@ void GTree::remove(int newToken) {
 			}
 			//If node is a right child
 			else {
+                cout << "- 2 Children C -" << endl;
 				//Replace node with _right
 				replacement = _right;
 				current = getParent(node, 1);
@@ -367,12 +394,14 @@ void GTree::remove(int newToken) {
 		else {
 			//If node is the head
 			if (isHead(node)) {
+                cout << "- 2 Children D -" << endl;
 				//Replace node with _rightleft
 				replacement = _rightleft;
 				head = replacement;
 			}
 			//If node is a left child
 			else if (isLeft(node)) {
+                cout << "- 2 Children E -" << endl;
 				//Replace node with _rightleft
 				replacement = _rightleft;
 				current = getParent(node, 1);
@@ -380,6 +409,7 @@ void GTree::remove(int newToken) {
 			}
 			//If node is a right child
 			else {
+                cout << "- 2 Children F -" << endl;
 				//Replace node with _rightleft
 				replacement = _rightleft;
 				current = getParent(node, 1);
@@ -448,9 +478,8 @@ void GTree::printTree() {
 	
 	/*
 	//Credit to Fedele for showing how to do colored text on https://stackoverflow.com/questions/24281603/c-underline-output
-	char normal[] = {0x1b,'[','0',';','3','9','m',0};
-	char red[] = {0x1b,'[','0',';','3','1','m',0}
-	char black[] = {0x1b,'[','0',';','3','8','m',0};
+    //Fedele is great and all but their method only works for Windows, and I find myself needed to code on a Mac, so I will be switching to the g++ native method. My Dad showed me how to do this one, and he originally found out about it from someone on Stack Overflow, so I'm not exactly sure who to credit here. We'll just pretend that I got it straight from the API.
+
 	*/
 	
 	/*
@@ -488,18 +517,21 @@ void GTree::printTree() {
 		//The head should only ever be black, but in case it ever isn't for some reason, we want the program to show that
 		if (currentIsRed()) {
 			//Set all text after this point to be red
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); //Set text to red
+			//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); //Set text to red
+            cout << RED; //Set future text to be red
 		}
 		//If head is black, which it should be always
 		else {
 			//Set all text after this point to be dark grey
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray
+			//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray
+            cout << BLACK; //Set future text to be dark gray, which is our "black"
 		}
 		
 		cout << "head: " << head->token << " (Generation 1)" << endl;
 		
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
-		
+		//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
+        cout << NORMAL; //Set future text to normal, which is light gray
+        
 		char* dynamicPath = new char[LEN]; //This will contain the dynamic path
 		strcpy(dynamicPath, "head");
 		checkChildren(head, generation, dynamicPath);
@@ -1169,17 +1201,25 @@ void GTree::checkChildren(GNode*& node, int generation, char* inPath) {
 		
 		//If the node is red
 		if (node->left->isRed) {
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); //Set text to red
+            cout << RED; //Set text to red
+			//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
 			//cout << "Generation " << ++generation << " (Left): " << node->left->token << endl;
+            
 			cout << outPath1 << ": " << node->left->token << " (Generation " << ++generation << ")" << endl;
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
+            
+            cout << NORMAL; //Set text back to light gray
+            //SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 		}
 		//If the node is black
 		else {
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray (I would do black but then you couldnt see the text against the background)
+            cout << BLACK; //Set text to gray (I would do black but then you couldnt see the text against the background)
+			//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
 			//cout << "Generation " << ++generation << " (Left): " << node->left->token << endl;
-			cout << outPath1 << ": " << node->left->token << " (Generation " << ++generation << ")" << endl;
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
+			
+            cout << outPath1 << ": " << node->left->token << " (Generation " << ++generation << ")" << endl;
+            
+            cout << NORMAL; //Set text back to light gray
+            //SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 		}
 
 		/*
@@ -1190,6 +1230,8 @@ void GTree::checkChildren(GNode*& node, int generation, char* inPath) {
 		//Check the children of the left node
 		checkChildren(node->left, generation, outPath1); //Check the next generation
 		generation--;
+        
+        delete[] outPath1; //Clear up that space once we're done here
 	}
 	//If the right child isn't NULL, check both of their children
 	if (node->right != NULL) {
@@ -1200,17 +1242,17 @@ void GTree::checkChildren(GNode*& node, int generation, char* inPath) {
 		
 		//If the node is red
 		if (node->right->isRed) {
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); //Set text to red
+			cout << RED; //Set text to red
 			//cout << "Generation " << ++generation << " (Right): " << node->right->token << endl;
 			cout << outPath2 << ": " << node->right->token << " (Generation " << ++generation << ")" << endl;
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to white
+			cout << NORMAL; //Set text back to light gray
 		}
 		//If the node is black
 		else {
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8); //Set text to gray (I would do black but then you couldnt see the text against the background)
+			cout << BLACK; //Set text to gray (I would do black but then you couldnt see the text against the background)
 			//cout << "Generation " << ++generation << " (Right): " << node->right->token << endl;
 			cout << outPath2 << ": " << node->right->token << " (Generation " << ++generation << ")" << endl;
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); //Set text back to light gray
+			cout << NORMAL; //Set text back to light gray
 		}
 		
 		/*
@@ -1221,10 +1263,9 @@ void GTree::checkChildren(GNode*& node, int generation, char* inPath) {
 		//Check the children of the right node
 		checkChildren(node->right, generation, outPath2);
 		generation--;
+        
+        delete[] outPath2; //Clear up that space once we're done here
 	}
-	
-	delete[] outPath1; //Clear up that space once we're done here
-	delete[] outPath2; //Clear up that space once we're done here
 }
 
 void GTree::searchChildren(GNode*& node, int number) {

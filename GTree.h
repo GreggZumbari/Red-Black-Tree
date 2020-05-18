@@ -47,7 +47,6 @@ void searchChildren(GNode*&, int) - Same as checkChildren, except instead of pri
  
 #include <iostream>
 #include <math.h>
-#include <windows.h>
 
 #define LEN 100
 #define BIGLEN 3000
