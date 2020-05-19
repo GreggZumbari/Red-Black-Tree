@@ -360,7 +360,6 @@ void GTree::remove(int newToken) {
 		//Keep track of the children's addresses because we are going to need them in a moment here
 		GNode* _left = node->left;
 		GNode* _right = node->right;
-		GNode* _rightleft = node->right->left;
 		
 		//If node's right child has no left child
 		if (node->right->left == NULL) {
@@ -392,6 +391,14 @@ void GTree::remove(int newToken) {
 		}
 		//If node's right child has a left child
 		else {
+            GNode* _rightleft = node->right->left; //INSTEAD OF GETTING RIGHTLEFT WE NEED TO GET RIGHTLEFTLEFTLEFTLEFTLEFTLEFT etc... until we get the smallest one in that branch.
+            GNode* _rightleftleft = node->right->left->left; //Stay with me here
+            GNode* _rightleftright = node->right->left->right;
+            
+            //Make _rightleftleft _rightleftright's left child. Trust me, it just works.
+            _rightleftright->left = _rightleftleft
+            //Now, make replace
+            
 			//If node is the head
 			if (isHead(node)) {
                 cout << "- 2 Children D -" << endl;
